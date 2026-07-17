@@ -1,0 +1,2667 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="BondLab — a bilingual interactive chemical bonding lab for Class XI learners.">
+  <title>BondLab — Interactive Chemical Bonding</title>
+  <style>
+    :root {
+      --bg: #06101d;
+      --bg-2: #0a1730;
+      --panel: rgba(14, 31, 55, .74);
+      --panel-solid: #0d2038;
+      --line: rgba(165, 214, 255, .16);
+      --text: #edf8ff;
+      --muted: #a9bfd2;
+      --cyan: #46e3ff;
+      --violet: #aa7bff;
+      --green: #5ce6a1;
+      --amber: #ffc75a;
+      --danger: #ff7c8c;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .28);
+      --radius: 22px;
+      --header-h: 74px;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      font-family: Inter, "Noto Sans Bengali", "Nirmala UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.65;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(70, 227, 255, .11), transparent 27rem),
+        radial-gradient(circle at 88% 22%, rgba(170, 123, 255, .12), transparent 31rem),
+        linear-gradient(145deg, var(--bg), var(--bg-2) 48%, #06101c);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .23;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 88%);
+      z-index: -1;
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button, select, input[type="range"] { accent-color: var(--cyan); }
+    button { color: inherit; }
+    :focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+    ::selection { color: #03101c; background: var(--cyan); }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 999;
+      padding: 10px 14px;
+      color: #04111c;
+      background: var(--amber);
+      border-radius: 10px;
+      transform: translateY(-160%);
+      transition: transform .2s;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      min-height: var(--header-h);
+      border-bottom: 1px solid var(--line);
+      background: rgba(5, 14, 27, .84);
+      backdrop-filter: blur(18px);
+    }
+    .nav-shell {
+      width: min(1240px, calc(100% - 32px));
+      min-height: var(--header-h);
+      margin: auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      white-space: nowrap;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .brand-mark {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(70,227,255,.5);
+      border-radius: 50%;
+      box-shadow: inset 0 0 18px rgba(70,227,255,.12), 0 0 24px rgba(70,227,255,.12);
+    }
+    .brand-mark::before, .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 7px -3px;
+      border: 1px solid var(--violet);
+      border-radius: 50%;
+      transform: rotate(55deg);
+    }
+    .brand-mark::after { transform: rotate(-55deg); border-color: var(--cyan); }
+    .brand-mark span {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      inset: 14px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 14px var(--amber);
+    }
+    .brand small {
+      display: block;
+      margin-top: -4px;
+      color: var(--muted);
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .main-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .main-nav a {
+      padding: 9px 10px;
+      color: var(--muted);
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: .84rem;
+      transition: color .2s, background .2s;
+    }
+    .main-nav a:hover, .main-nav a.active { color: var(--text); background: rgba(70,227,255,.09); }
+    .lang-toggle {
+      display: inline-flex;
+      flex: 0 0 auto;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+    }
+    .lang-toggle button {
+      min-width: 42px;
+      padding: 6px 9px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 800;
+    }
+    .lang-toggle button[aria-pressed="true"] { color: #04111c; background: var(--cyan); }
+    .menu-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.05);
+      cursor: pointer;
+    }
+    .menu-toggle span { display: block; height: 2px; margin: 5px 0; background: currentColor; }
+
+    main { width: min(1200px, calc(100% - 32px)); margin: 0 auto; }
+    section { position: relative; padding: 92px 0 20px; }
+    .section-head { max-width: 830px; margin-bottom: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 9px;
+      color: var(--cyan);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+    h1, h2, h3, h4, p { margin-top: 0; }
+    h1 { margin-bottom: 18px; font-size: clamp(2.7rem, 7vw, 6.3rem); line-height: .98; letter-spacing: -.065em; }
+    h2 { margin-bottom: 12px; font-size: clamp(2rem, 4.5vw, 3.7rem); line-height: 1.08; letter-spacing: -.045em; }
+    h3 { line-height: 1.25; letter-spacing: -.02em; }
+    .lead { max-width: 720px; color: #c9d9e7; font-size: clamp(1.02rem, 2vw, 1.22rem); }
+    .muted { color: var(--muted); }
+    .fine { color: var(--muted); font-size: .86rem; }
+    sub, sup { line-height: 0; }
+    .accent { color: var(--cyan); }
+    .violet { color: var(--violet); }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(18, 42, 72, .78), rgba(8, 22, 40, .74));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .padded { padding: clamp(18px, 3vw, 30px); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .stack { display: grid; gap: 18px; }
+    .mini-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.035);
+    }
+    .mini-card h3, .mini-card h4 { margin-bottom: 6px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 10px 17px;
+      border: 1px solid rgba(70,227,255,.36);
+      border-radius: 12px;
+      background: rgba(70,227,255,.08);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform .2s, background .2s, border .2s;
+    }
+    .btn:hover { transform: translateY(-2px); background: rgba(70,227,255,.15); }
+    .btn.primary { color: #04111c; border-color: var(--cyan); background: var(--cyan); }
+    .btn.secondary { border-color: rgba(170,123,255,.46); background: rgba(170,123,255,.12); }
+    .btn.danger { border-color: rgba(255,124,140,.42); background: rgba(255,124,140,.1); }
+    .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 9px; }
+    .chip {
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.035);
+      cursor: pointer;
+      font-size: .86rem;
+      font-weight: 800;
+    }
+    .chip[aria-pressed="true"], .chip.active { color: #04111c; border-color: var(--cyan); background: var(--cyan); }
+    .tag {
+      display: inline-flex;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 800;
+    }
+
+    .hero {
+      min-height: calc(100vh - var(--header-h));
+      padding-top: clamp(70px, 10vw, 120px);
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items: center;
+      gap: 44px;
+    }
+    .hero-copy .lead { margin-bottom: 28px; }
+    .hero-copy h1 span { display: block; color: var(--cyan); text-shadow: 0 0 45px rgba(70,227,255,.24); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 30px; }
+    .hero-meta div { padding-left: 12px; border-left: 2px solid var(--cyan); }
+    .hero-meta b { display: block; font-size: 1.1rem; }
+    .hero-meta small { color: var(--muted); }
+    .atom-lab {
+      position: relative;
+      min-height: 490px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .atom-scene {
+      position: relative;
+      width: min(78vw, 380px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      perspective: 800px;
+    }
+    .nucleus {
+      width: 86px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #07101b;
+      background: radial-gradient(circle at 32% 28%, #fff3b8, var(--amber) 30%, #ff8a4c 82%);
+      box-shadow: 0 0 50px rgba(255,199,90,.48);
+      font-size: .75rem;
+      font-weight: 950;
+      z-index: 3;
+    }
+    .orbit {
+      position: absolute;
+      width: 92%;
+      height: 39%;
+      border: 1px solid rgba(70,227,255,.55);
+      border-radius: 50%;
+      transform: rotate(18deg);
+    }
+    .orbit:nth-child(2) { transform: rotate(78deg); border-color: rgba(170,123,255,.58); }
+    .orbit:nth-child(3) { transform: rotate(138deg); border-color: rgba(92,230,161,.55); }
+    .electron {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: calc(50% - 8px);
+      left: calc(50% - 8px);
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px currentColor;
+      animation: electronOrbit 5s linear infinite;
+    }
+    .orbit:nth-child(2) .electron { color: var(--violet); background: var(--violet); animation-duration: 7s; animation-direction: reverse; }
+    .orbit:nth-child(3) .electron { color: var(--green); background: var(--green); animation-duration: 6s; }
+    @keyframes electronOrbit {
+      from { transform: rotate(0) translateX(175px) rotate(0); }
+      to { transform: rotate(360deg) translateX(175px) rotate(-360deg); }
+    }
+    .atom-label {
+      position: absolute;
+      right: 20px;
+      bottom: 22px;
+      max-width: 220px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(5,15,27,.8);
+      color: var(--muted);
+      font-size: .83rem;
+    }
+    .progress-orbit {
+      position: absolute;
+      left: 20px;
+      top: 22px;
+      width: 94px;
+      height: 94px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) var(--progress, 0%), rgba(255,255,255,.08) 0);
+    }
+    .progress-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: inherit;
+      background: #0b1b30;
+    }
+    .progress-orbit span { position: relative; z-index: 1; text-align: center; font-size: .72rem; line-height: 1.2; }
+    .progress-orbit b { display: block; font-size: 1.15rem; color: var(--green); }
+
+    .complete-btn {
+      position: absolute;
+      top: 94px;
+      right: 0;
+      border-color: rgba(92,230,161,.34);
+      background: rgba(92,230,161,.08);
+    }
+    .complete-btn.done { color: #041510; border-color: var(--green); background: var(--green); }
+
+    .trend-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; }
+    .periodic-wrap { overflow-x: auto; padding-bottom: 6px; }
+    .periodic-grid {
+      min-width: 700px;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(66px, 1fr));
+      grid-template-rows: repeat(3, 78px);
+      gap: 8px;
+    }
+    .element {
+      position: relative;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--element-color, var(--cyan)) var(--intensity, 35%), rgba(11,27,48,.9));
+      cursor: pointer;
+      transition: transform .2s, background .25s, border .2s;
+    }
+    .element:hover, .element.selected { transform: translateY(-3px); border-color: var(--amber); }
+    .element b { font-size: 1.25rem; line-height: 1; }
+    .element small { color: #d4e5f1; font-size: .68rem; }
+    .element .z { position: absolute; top: 5px; left: 7px; color: rgba(255,255,255,.62); font-size: .64rem; }
+    .trend-compass {
+      position: relative;
+      min-height: 190px;
+      margin: 16px 0;
+      border: 1px dashed rgba(255,255,255,.16);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(70,227,255,.03), rgba(170,123,255,.05));
+    }
+    .trend-arrow {
+      position: absolute;
+      left: 17%;
+      bottom: 18%;
+      width: 68%;
+      height: 4px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(70,227,255,.18), var(--cyan));
+      transform-origin: left center;
+      transform: rotate(var(--arrow-angle, -32deg));
+      box-shadow: 0 0 18px rgba(70,227,255,.25);
+    }
+    .trend-arrow::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -7px;
+      width: 15px;
+      height: 15px;
+      border-top: 4px solid var(--cyan);
+      border-right: 4px solid var(--cyan);
+      transform: rotate(45deg);
+    }
+    .axis-x, .axis-y { position: absolute; color: var(--muted); font-size: .75rem; }
+    .axis-x { right: 12px; bottom: 7px; }
+    .axis-y { left: 8px; top: 8px; writing-mode: vertical-rl; transform: rotate(180deg); }
+    .range-shell { margin-top: 18px; }
+    .range-shell input { width: 100%; }
+    .continuum {
+      position: relative;
+      height: 14px;
+      margin: 18px 0 9px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--green), var(--amber), var(--violet));
+    }
+    .continuum-marker {
+      position: absolute;
+      top: 50%;
+      left: calc(var(--bond-x, 0) * 1%);
+      width: 24px;
+      height: 24px;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      background: #0b1a2e;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.1);
+    }
+    .continuum-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; color: var(--muted); font-size: .77rem; }
+    .continuum-labels span:nth-child(2) { text-align: center; }
+    .continuum-labels span:last-child { text-align: right; }
+
+    .ionic-stage {
+      position: relative;
+      min-height: 340px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 25% 50%, rgba(170,123,255,.11), transparent 24%),
+        radial-gradient(circle at 75% 50%, rgba(70,227,255,.11), transparent 24%);
+    }
+    .ion-atom {
+      position: absolute;
+      top: 112px;
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      color: var(--violet);
+      background: rgba(170,123,255,.11);
+      box-shadow: inset 0 0 30px rgba(170,123,255,.1), 0 0 30px rgba(170,123,255,.12);
+      font-size: 2rem;
+      font-weight: 900;
+      transition: transform .55s, border-radius .55s;
+    }
+    .ion-atom.na { left: 15%; }
+    .ion-atom.cl { right: 15%; color: var(--cyan); background: rgba(70,227,255,.09); }
+    .ion-atom .charge { position: absolute; top: -16px; right: 3px; color: var(--amber); font-size: 1.1rem; opacity: 0; transition: opacity .3s; }
+    .valence-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 9px var(--cyan);
+      transition: opacity .25s;
+    }
+    .valence-dot:nth-of-type(1) { top: -6px; left: calc(50% - 4px); }
+    .valence-dot:nth-of-type(2) { top: 11px; right: 7px; }
+    .valence-dot:nth-of-type(3) { top: calc(50% - 4px); right: -6px; }
+    .valence-dot:nth-of-type(4) { right: 7px; bottom: 11px; }
+    .valence-dot:nth-of-type(5) { bottom: -6px; left: calc(50% - 4px); }
+    .valence-dot:nth-of-type(6) { bottom: 11px; left: 7px; }
+    .valence-dot:nth-of-type(7) { top: calc(50% - 4px); left: -6px; }
+    .ion-dot {
+      position: absolute;
+      left: calc(15% + 92px);
+      top: 158px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 17px var(--amber);
+      transition: left .9s cubic-bezier(.22,.84,.31,1), top .6s;
+      z-index: 4;
+    }
+    .ionic-stage[data-step="0"] .ion-dot { opacity: .25; }
+    .ionic-stage[data-step="1"] .ion-dot { left: calc(50% - 6px); top: 92px; }
+    .ionic-stage[data-step="2"] .ion-dot,
+    .ionic-stage[data-step="3"] .ion-dot,
+    .ionic-stage[data-step="4"] .ion-dot { left: calc(85% - 105px); }
+    .ionic-stage[data-step="2"] .charge,
+    .ionic-stage[data-step="3"] .charge,
+    .ionic-stage[data-step="4"] .charge { opacity: 1; }
+    .ionic-stage[data-step="3"] .ion-atom.na { transform: translateX(65px); }
+    .ionic-stage[data-step="3"] .ion-atom.cl { transform: translateX(-65px); }
+    .ionic-stage[data-step="4"] .ion-atom {
+      width: 76px;
+      height: 76px;
+      font-size: 1.2rem;
+      box-shadow: 82px 0 0 rgba(70,227,255,.13), 82px 0 0 2px var(--cyan),
+                  0 82px 0 rgba(70,227,255,.13), 0 82px 0 2px var(--cyan),
+                  82px 82px 0 rgba(170,123,255,.13), 82px 82px 0 2px var(--violet);
+    }
+    .ionic-stage[data-step="4"] .ion-atom.na { left: 38%; top: 88px; transform: none; }
+    .ionic-stage[data-step="4"] .ion-atom.cl { right: 44%; top: 170px; transform: none; }
+    .ionic-stage[data-step="4"] .valence-dot,
+    .ionic-stage[data-step="4"] .ion-dot { opacity: 0; }
+    .stage-caption {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 16px;
+      margin: 0;
+      text-align: center;
+      color: #cddcea;
+      font-size: .9rem;
+    }
+    .step-dots { display: flex; justify-content: center; gap: 8px; margin: 15px 0; }
+    .step-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.15); }
+    .step-dots i.active { background: var(--cyan); box-shadow: 0 0 11px var(--cyan); }
+    .try-box .option-grid { margin-top: 12px; }
+
+    .visual-stage {
+      position: relative;
+      min-height: 360px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(70,227,255,.08), transparent 35%),
+        rgba(5,15,28,.55);
+    }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    #bondCanvas { min-height: 360px; }
+    .canvas-label {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      max-width: calc(100% - 28px);
+      padding: 7px 11px;
+      border-radius: 9px;
+      background: rgba(4,13,24,.74);
+      color: var(--muted);
+      font-size: .78rem;
+      pointer-events: none;
+    }
+    .comparison { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .comparison th, .comparison td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .comparison th { color: var(--cyan); background: rgba(70,227,255,.04); }
+    .comparison tbody tr:hover { background: rgba(255,255,255,.025); }
+    .table-scroll { overflow-x: auto; }
+
+    .control {
+      display: grid;
+      gap: 7px;
+    }
+    .control label { color: #d9e8f2; font-size: .86rem; font-weight: 800; }
+    select, input[type="number"] {
+      min-height: 44px;
+      width: 100%;
+      padding: 9px 12px;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #0b1d34;
+    }
+    input[type="range"] { min-height: 34px; }
+    .quantum-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .quantum-readout {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid rgba(92,230,161,.23);
+      border-radius: 14px;
+      background: rgba(92,230,161,.055);
+    }
+    .quantum-code { font-family: "Cambria Math", Georgia, serif; font-size: 1.35rem; }
+    .hierarchy {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      gap: 24px;
+      margin: 22px 0;
+    }
+    .hierarchy div {
+      position: relative;
+      padding: 17px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      text-align: center;
+      background: rgba(255,255,255,.035);
+    }
+    .hierarchy div:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -22px;
+      color: var(--cyan);
+      transform: translateY(-50%);
+    }
+    .orbital-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; min-height: 78px; padding-top: 10px; }
+    .orbital-box {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      border: 2px solid rgba(70,227,255,.55);
+      border-top: 0;
+    }
+    .spin-up, .spin-down { position: absolute; bottom: 2px; font-size: 2.2rem; line-height: 1; }
+    .spin-up { left: 7px; color: var(--cyan); }
+    .spin-down { right: 7px; color: var(--violet); }
+    .orbital-box small { position: absolute; left: 50%; bottom: -26px; color: var(--muted); transform: translateX(-50%); }
+
+    .orbital-cards .mini-card { cursor: pointer; transition: border .2s, transform .2s; }
+    .orbital-cards .mini-card:hover, .orbital-cards .mini-card.active { border-color: var(--cyan); transform: translateY(-3px); }
+    .orbital-glyph {
+      height: 90px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 12px;
+    }
+    .glyph-s { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #baf6ff, var(--cyan) 35%, rgba(70,227,255,.13) 72%); }
+    .glyph-p, .glyph-d, .glyph-dz { position: relative; width: 112px; height: 72px; }
+    .glyph-p::before, .glyph-p::after,
+    .glyph-d::before, .glyph-d::after {
+      content: "";
+      position: absolute;
+      top: 18px;
+      width: 49px;
+      height: 37px;
+      border-radius: 65% 24% 65% 24%;
+      background: var(--cyan);
+      transform: rotate(45deg);
+    }
+    .glyph-p::before { left: 6px; }
+    .glyph-p::after { right: 6px; background: var(--violet); transform: rotate(225deg); }
+    .glyph-d::before { left: 13px; box-shadow: 52px 0 0 var(--violet); }
+    .glyph-d::after { left: 39px; top: -5px; box-shadow: 0 49px 0 var(--violet); transform: rotate(135deg); }
+    .glyph-dz::before, .glyph-dz::after {
+      content: "";
+      position: absolute;
+      left: 39px;
+      width: 35px;
+      height: 38px;
+      border-radius: 50% 50% 16% 16%;
+      background: var(--cyan);
+    }
+    .glyph-dz::before { top: 0; }
+    .glyph-dz::after { bottom: 0; background: var(--violet); transform: rotate(180deg); }
+    .glyph-dz { border: 8px solid rgba(255,199,90,.75); border-top-color: transparent; border-bottom-color: transparent; border-radius: 50%; }
+    .viewer-toolbar { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 12px; margin-bottom: 12px; }
+    #orbitalCanvas, #dragoCanvas, #geometryCanvas { height: 430px; cursor: grab; }
+    #orbitalCanvas:active, #geometryCanvas:active { cursor: grabbing; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; color: var(--muted); font-size: .8rem; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--cyan); }
+    .swatch.violet { background: var(--violet); }
+    .swatch.green { background: var(--green); }
+    .swatch.amber { background: var(--amber); }
+
+    .condition-list { counter-reset: cond; display: grid; gap: 10px; padding: 0; list-style: none; }
+    .condition-list li { position: relative; padding: 12px 14px 12px 48px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.025); }
+    .condition-list li::before {
+      counter-increment: cond;
+      content: counter(cond);
+      position: absolute;
+      left: 13px;
+      top: 11px;
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #07121f;
+      background: var(--amber);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+    .angle-compare { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+    .angle-compare div { padding: 13px; border: 1px solid var(--line); border-radius: 13px; }
+    .angle-compare strong { display: block; color: var(--cyan); font-size: 1.35rem; }
+
+    .geometry-layout { display: grid; grid-template-columns: .72fr 1.28fr; gap: 20px; }
+    .geometry-result { margin-top: 15px; }
+    .formula {
+      padding: 14px 16px;
+      border-left: 3px solid var(--amber);
+      border-radius: 0 12px 12px 0;
+      background: rgba(255,199,90,.07);
+      font-family: "Cambria Math", Georgia, serif;
+    }
+    .shape-readout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 14px; }
+    .shape-readout div { padding: 12px; border: 1px solid var(--line); border-radius: 12px; }
+    .shape-readout small { display: block; color: var(--muted); }
+    .shape-readout b { color: var(--cyan); }
+
+    .quiz-shell { max-width: 900px; margin: auto; overflow: hidden; }
+    .quiz-top { padding: 22px 24px 0; }
+    .quiz-progress { height: 10px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); }
+    .quiz-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--violet)); transition: width .35s; }
+    .quiz-content { padding: 28px clamp(18px, 5vw, 46px) 34px; }
+    .quiz-kicker { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .84rem; }
+    .quiz-question { margin: 18px 0 20px; font-size: clamp(1.3rem, 3vw, 1.85rem); }
+    .option-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
+    .option {
+      position: relative;
+      min-height: 58px;
+      padding: 13px 15px 13px 50px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      cursor: pointer;
+      text-align: left;
+      transition: border .2s, background .2s, transform .2s;
+    }
+    .option:hover { transform: translateY(-2px); border-color: rgba(70,227,255,.5); }
+    .option::before {
+      content: attr(data-letter);
+      position: absolute;
+      left: 13px;
+      top: 14px;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-weight: 900;
+    }
+    .option.selected { border-color: var(--cyan); background: rgba(70,227,255,.09); }
+    .option.correct { border-color: var(--green); background: rgba(92,230,161,.1); }
+    .option.incorrect { border-color: var(--danger); background: rgba(255,124,140,.09); }
+    .feedback {
+      display: none;
+      margin-top: 16px;
+      padding: 15px 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+    }
+    .feedback.show { display: block; }
+    .feedback strong { color: var(--green); }
+    .quiz-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; }
+    .score-hero { text-align: center; padding: 16px 0 28px; }
+    .score-ring {
+      width: 158px;
+      height: 158px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) var(--score-pct, 0%), rgba(255,255,255,.08) 0);
+    }
+    .score-ring::before { content: ""; position: absolute; width: 130px; height: 130px; border-radius: 50%; background: #0b1d33; }
+    .score-ring span { position: relative; font-size: 2rem; font-weight: 900; }
+    .topic-bars { display: grid; gap: 11px; margin: 18px 0; }
+    .topic-row { display: grid; grid-template-columns: minmax(150px, .8fr) 1.5fr 46px; align-items: center; gap: 10px; font-size: .85rem; }
+    .bar { height: 9px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); }
+    .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--green)); }
+    .review-list { display: grid; gap: 10px; margin-top: 16px; }
+    .review-item { padding: 13px; border: 1px solid rgba(255,124,140,.23); border-radius: 12px; background: rgba(255,124,140,.045); }
+
+    .revision-grid .mini-card { position: relative; overflow: hidden; }
+    .revision-grid .mini-card::after {
+      content: attr(data-symbol);
+      position: absolute;
+      right: 10px;
+      bottom: -25px;
+      color: rgba(255,255,255,.035);
+      font-size: 5rem;
+      font-weight: 950;
+    }
+    .did-you-know { border-top: 3px solid var(--amber); }
+    .term {
+      padding: 0 2px;
+      color: var(--cyan);
+      border: 0;
+      border-bottom: 1px dashed currentColor;
+      background: transparent;
+      cursor: help;
+    }
+    .glossary-pop {
+      position: fixed;
+      z-index: 120;
+      width: min(320px, calc(100vw - 28px));
+      padding: 14px;
+      border: 1px solid rgba(70,227,255,.35);
+      border-radius: 14px;
+      background: #0c2038;
+      box-shadow: var(--shadow);
+    }
+    .glossary-pop[hidden] { display: none; }
+    .glossary-pop b { display: block; margin-bottom: 4px; color: var(--cyan); }
+
+    footer { margin-top: 90px; border-top: 1px solid var(--line); background: rgba(3,10,19,.65); }
+    .footer-grid { width: min(1200px, calc(100% - 32px)); margin: auto; padding: 48px 0 28px; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 28px; }
+    .footer-grid h3 { color: var(--cyan); }
+    .footer-grid ul { margin: 0; padding-left: 19px; color: var(--muted); }
+    .footer-bottom { width: min(1200px, calc(100% - 32px)); margin: auto; padding: 18px 0 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem; }
+    .kbd { display: inline-block; min-width: 26px; padding: 2px 6px; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; text-align: center; font-size: .72rem; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 150;
+      max-width: 340px;
+      padding: 13px 16px;
+      border: 1px solid rgba(92,230,161,.38);
+      border-radius: 13px;
+      color: var(--text);
+      background: #0c2830;
+      box-shadow: var(--shadow);
+      transform: translateY(130%);
+      opacity: 0;
+      transition: transform .25s, opacity .25s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 1050px) {
+      .menu-toggle { display: block; margin-left: auto; }
+      .main-nav {
+        position: fixed;
+        top: var(--header-h);
+        left: 16px;
+        right: 16px;
+        max-height: calc(100vh - 94px);
+        padding: 12px;
+        display: none;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #09192d;
+        box-shadow: var(--shadow);
+      }
+      .main-nav.open { display: grid; }
+      .main-nav a { padding: 12px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-copy { padding-top: 20px; }
+      .atom-lab { min-height: 430px; }
+      .trend-layout, .geometry-layout { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      :root { --header-h: 66px; }
+      .nav-shell, main, .footer-grid, .footer-bottom { width: min(100% - 22px, 1200px); }
+      .brand small { display: none; }
+      .brand-mark { width: 34px; height: 34px; }
+      .brand-mark span { inset: 12px; }
+      .lang-toggle button { min-width: 35px; padding-inline: 6px; }
+      section { padding-top: 76px; }
+      .complete-btn { position: static; margin: -10px 0 20px; }
+      .grid-2, .grid-3, .grid-4, .option-grid { grid-template-columns: 1fr; }
+      .quantum-controls { grid-template-columns: repeat(2, 1fr); }
+      .hierarchy { grid-template-columns: 1fr; gap: 20px; }
+      .hierarchy div:not(:last-child)::after { top: auto; right: 50%; bottom: -23px; transform: translateX(50%) rotate(90deg); }
+      .viewer-toolbar { grid-template-columns: 1fr; }
+      #orbitalCanvas, #dragoCanvas, #geometryCanvas { height: 360px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .topic-row { grid-template-columns: 1fr 1.2fr 40px; }
+      .ion-atom.na { left: 5%; }
+      .ion-atom.cl { right: 5%; }
+      .ionic-stage[data-step="0"] .ion-dot { left: calc(5% + 92px); }
+      .ionic-stage[data-step="1"] .ion-dot { left: calc(50% - 6px); }
+      .ionic-stage[data-step="2"] .ion-dot,
+      .ionic-stage[data-step="3"] .ion-dot,
+      .ionic-stage[data-step="4"] .ion-dot { left: calc(95% - 105px); }
+      .ionic-stage[data-step="4"] .ion-atom.na { left: 29%; }
+      .ionic-stage[data-step="4"] .ion-atom.cl { right: 34%; }
+    }
+    @media (max-width: 470px) {
+      .brand-text { font-size: .88rem; }
+      .hero { gap: 10px; }
+      .atom-lab { min-height: 360px; }
+      .atom-label { right: 10px; bottom: 10px; max-width: 190px; }
+      .progress-orbit { left: 10px; top: 10px; width: 78px; height: 78px; }
+      .electron { display: none; }
+      .quantum-controls, .shape-readout, .angle-compare { grid-template-columns: 1fr; }
+      .quiz-actions { align-items: stretch; flex-direction: column; }
+      .quiz-actions .btn { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-bn="মূল বিষয়বস্তুতে যাও" data-en="Skip to main content">মূল বিষয়বস্তুতে যাও</a>
+
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="#home" aria-label="BondLab home">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span class="brand-text">BondLab <small data-bn="ইন্টারঅ্যাক্টিভ কেমিস্ট্রি" data-en="Interactive Chemistry">ইন্টারঅ্যাক্টিভ কেমিস্ট্রি</small></span>
+      </a>
+      <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
+        <a href="#trends" data-bn="প্রবণতা" data-en="Trends">প্রবণতা</a>
+        <a href="#ionic" data-bn="আয়নিক" data-en="Ionic">আয়নিক</a>
+        <a href="#covalent" data-bn="সমযোজী" data-en="Covalent">সমযোজী</a>
+        <a href="#quantum" data-bn="কোয়ান্টাম" data-en="Quantum">কোয়ান্টাম</a>
+        <a href="#orbitals" data-bn="অরবিটাল" data-en="Orbitals">অরবিটাল</a>
+        <a href="#drago" data-bn="ড্রাগোর সূত্র" data-en="Drago’s Rule">ড্রাগোর সূত্র</a>
+        <a href="#geometry" data-bn="জ্যামিতি" data-en="Geometry">জ্যামিতি</a>
+        <a href="#revision" data-bn="রিভিশন" data-en="Revision">রিভিশন</a>
+        <a href="#quiz" data-bn="কুইজ" data-en="Quiz">কুইজ</a>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mainNav" data-aria-bn="মেনু খোলো" data-aria-en="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="lang-toggle" aria-label="Language">
+        <button type="button" data-lang="bn" aria-pressed="true">বাংলা</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow" data-bn="একাদশ শ্রেণি • WBCHSE / CBSE" data-en="Class XI • WBCHSE / CBSE">একাদশ শ্রেণি • WBCHSE / CBSE</p>
+        <h1><span>BondLab</span><span data-bn="বন্ধনশালা" data-en="Bonding, visualised">বন্ধনশালা</span></h1>
+        <p class="lead" data-bn="পরমাণুর প্রবণতা থেকে অরবিটালের আকৃতি—রাসায়নিক বন্ধনের প্রতিটি ধারণা দেখো, বদলাও এবং নিজে যাচাই করো।" data-en="From atomic trends to orbital shapes—see, manipulate and test every core idea behind chemical bonding.">পরমাণুর প্রবণতা থেকে অরবিটালের আকৃতি—রাসায়নিক বন্ধনের প্রতিটি ধারণা দেখো, বদলাও এবং নিজে যাচাই করো।</p>
+        <div class="button-row">
+          <a class="btn primary" href="#trends"><span aria-hidden="true">⚗</span><span data-bn="শেখা শুরু করো" data-en="Start Learning">শেখা শুরু করো</span></a>
+          <a class="btn secondary" href="#quiz"><span aria-hidden="true">✓</span><span data-bn="কুইজ দাও" data-en="Take Quiz">কুইজ দাও</span></a>
+        </div>
+        <div class="hero-meta">
+          <div><b>8</b><small data-bn="ইন্টারঅ্যাক্টিভ অধ্যায়" data-en="interactive chapters">ইন্টারঅ্যাক্টিভ অধ্যায়</small></div>
+          <div><b>15</b><small data-bn="ধারণাভিত্তিক প্রশ্ন" data-en="concept questions">ধারণাভিত্তিক প্রশ্ন</small></div>
+          <div><b>2</b><small data-bn="ভাষা" data-en="languages">ভাষা</small></div>
+        </div>
+      </div>
+      <div class="atom-lab panel" aria-label="Animated atom learning progress visual">
+        <div class="progress-orbit" id="heroProgress" style="--progress:0%"><span><b>0%</b><span data-bn="সম্পন্ন" data-en="complete">সম্পন্ন</span></span></div>
+        <div class="atom-scene" aria-hidden="true">
+          <div class="nucleus">LAB</div>
+          <div class="orbit"><span class="electron"></span></div>
+          <div class="orbit"><span class="electron"></span></div>
+          <div class="orbit"><span class="electron"></span></div>
+        </div>
+        <p class="atom-label" data-bn="প্রতিটি অধ্যায় শেষ হলে ✓ চাপো। তোমার অগ্রগতি এই যন্ত্রেই সংরক্ষিত থাকবে।" data-en="Press ✓ after each chapter. Your progress stays saved on this device.">প্রতিটি অধ্যায় শেষ হলে ✓ চাপো। তোমার অগ্রগতি এই যন্ত্রেই সংরক্ষিত থাকবে।</p>
+      </div>
+    </section>
+
+    <section id="trends" data-track="trends">
+      <button class="btn complete-btn" type="button" data-complete="trends"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">01 • Periodic Trends</p>
+        <h2 data-bn="পর্যায়বৃত্তীয় প্রবণতা ও বন্ধন" data-en="Periodic trends & bonding">পর্যায়বৃত্তীয় প্রবণতা ও বন্ধন</h2>
+        <p class="lead" data-bn="প্রবণতা বেছে নিয়ে রঙের তীব্রতা ও তীরের দিক দেখো। কোনো মৌলে চাপলে তার অবস্থান ও বন্ধনের সঙ্গে সম্পর্ক জানতে পারবে।" data-en="Choose a trend to see its direction and colour intensity. Select an element to connect its position with bonding behaviour.">প্রবণতা বেছে নিয়ে রঙের তীব্রতা ও তীরের দিক দেখো। কোনো মৌলে চাপলে তার অবস্থান ও বন্ধনের সঙ্গে সম্পর্ক জানতে পারবে।</p>
+      </div>
+      <div class="chip-row" id="trendChips" aria-label="Periodic trend selector"></div>
+      <div class="trend-layout" style="margin-top:16px">
+        <div class="panel padded">
+          <div class="periodic-wrap">
+            <div class="periodic-grid" id="periodicGrid" aria-label="Simplified periodic table: periods 1 to 3"></div>
+          </div>
+          <p class="fine" data-bn="সরলীকৃত সারণি: প্রথম তিনটি পর্যায়। রঙ সাধারণ প্রবণতা বোঝায়—ব্যতিক্রম থাকতে পারে।" data-en="Simplified table: first three periods. Colour shows the general trend; exceptions can occur.">সরলীকৃত সারণি: প্রথম তিনটি পর্যায়। রঙ সাধারণ প্রবণতা বোঝায়—ব্যতিক্রম থাকতে পারে।</p>
+        </div>
+        <aside class="panel padded">
+          <span class="tag" id="trendTag">Electronegativity</span>
+          <div class="trend-compass">
+            <div class="trend-arrow" id="trendArrow"></div>
+            <span class="axis-x" data-bn="পর্যায় →" data-en="Across period →">পর্যায় →</span>
+            <span class="axis-y" data-bn="গ্রুপে নীচে" data-en="Down group">গ্রুপে নীচে</span>
+          </div>
+          <h3 id="trendTitle">Electronegativity</h3>
+          <p id="trendReason" class="muted"></p>
+          <div class="mini-card">
+            <b id="selectedElement">F • Period 2 • Group 17</b>
+            <p id="elementBonding" class="fine" style="margin:7px 0 0"></p>
+          </div>
+        </aside>
+      </div>
+      <div class="panel padded" style="margin-top:20px">
+        <div class="grid-2">
+          <div>
+            <p class="eyebrow">Bond continuum</p>
+            <h3 data-bn="তড়িৎঋণাত্মকতার পার্থক্য, Δχ" data-en="Electronegativity difference, Δχ">তড়িৎঋণাত্মকতার পার্থক্য, Δχ</h3>
+            <p class="muted" data-bn="এটি শেখার সুবিধার জন্য একটি continuum model; সীমারেখাগুলি কঠোর বা সর্বজনীন নয়।" data-en="This is a learning continuum; the boundaries are neither rigid nor universal.">এটি শেখার সুবিধার জন্য একটি continuum model; সীমারেখাগুলি কঠোর বা সর্বজনীন নয়।</p>
+          </div>
+          <div class="range-shell">
+            <label for="enSlider"><span data-bn="Δχ মান" data-en="Δχ value">Δχ মান</span>: <b id="enValue">1.0</b></label>
+            <input id="enSlider" type="range" min="0" max="3.5" value="1" step="0.1">
+            <div class="continuum"><span class="continuum-marker" id="continuumMarker" style="--bond-x:28.6"></span></div>
+            <div class="continuum-labels">
+              <span data-bn="অ-ধ্রুবীয় সমযোজী" data-en="Non-polar covalent">অ-ধ্রুবীয় সমযোজী</span>
+              <span data-bn="ধ্রুবীয় সমযোজী" data-en="Polar covalent">ধ্রুবীয় সমযোজী</span>
+              <span data-bn="প্রধানত আয়নিক" data-en="Predominantly ionic">প্রধানত আয়নিক</span>
+            </div>
+            <p id="bondClass" style="margin:13px 0 0;color:var(--amber);font-weight:800"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ionic" data-track="ionic">
+      <button class="btn complete-btn" type="button" data-complete="ionic"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">02 • Ionic Bonding</p>
+        <h2 data-bn="ইলেকট্রন স্থানান্তর: NaCl" data-en="Electron transfer: NaCl">ইলেকট্রন স্থানান্তর: NaCl</h2>
+        <p class="lead" data-bn="Na-এর একটি যোজ্যতা ইলেকট্রন Cl গ্রহণ করে। উৎপন্ন বিপরীত আধানযুক্ত আয়নগুলির তড়িৎস্থির আকর্ষণে ত্রিমাত্রিক lattice গঠিত হয়।" data-en="Cl accepts the one valence electron from Na. Electrostatic attraction between the resulting oppositely charged ions builds a three-dimensional lattice.">Na-এর একটি যোজ্যতা ইলেকট্রন Cl গ্রহণ করে। উৎপন্ন বিপরীত আধানযুক্ত আয়নগুলির তড়িৎস্থির আকর্ষণে ত্রিমাত্রিক lattice গঠিত হয়।</p>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="ionic-stage panel" id="ionicStage" data-step="0">
+            <div class="ion-atom na">Na<span class="charge">+</span></div>
+            <span class="ion-dot" aria-label="valence electron"></span>
+            <div class="ion-atom cl">Cl<span class="charge">−</span><i class="valence-dot"></i><i class="valence-dot"></i><i class="valence-dot"></i><i class="valence-dot"></i><i class="valence-dot"></i><i class="valence-dot"></i><i class="valence-dot"></i></div>
+            <p class="stage-caption" id="ionicCaption"></p>
+          </div>
+          <div class="step-dots" id="ionicDots" aria-hidden="true"></div>
+          <div class="button-row" style="justify-content:center">
+            <button class="btn" id="ionicPrev" type="button" data-bn="← আগের ধাপ" data-en="← Previous">← আগের ধাপ</button>
+            <button class="btn primary" id="ionicNext" type="button" data-bn="পরের ধাপ →" data-en="Next →">পরের ধাপ →</button>
+            <button class="btn secondary" id="ionicReplay" type="button" data-bn="↻ আবার দেখো" data-en="↻ Replay">↻ আবার দেখো</button>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="mini-card">
+            <h3 data-bn="মূল ধারণা" data-en="Core ideas">মূল ধারণা</h3>
+            <p class="muted" data-bn="ধনাত্মক ion হলো cation, ঋণাত্মক ion হলো anion। স্থানান্তরিত electron-এর সংখ্যা <button class='term' data-term='electrovalency'>electrovalency</button> নির্দেশ করে। Lattice enthalpy হলো গ্যাসীয় ion থেকে ionic solid গঠনের শক্তি-পরিবর্তন; এর মান ion-এর আধান ও আকারের উপর প্রবলভাবে নির্ভরশীল।" data-en="A positive ion is a cation; a negative ion is an anion. <button class='term' data-term='electrovalency'>Electrovalency</button> is the number of electrons transferred. Lattice enthalpy describes the energy change when gaseous ions form an ionic solid and depends strongly on ionic charge and size.">ধনাত্মক ion হলো cation, ঋণাত্মক ion হলো anion। স্থানান্তরিত electron-এর সংখ্যা <button class="term" data-term="electrovalency">electrovalency</button> নির্দেশ করে। Lattice enthalpy হলো গ্যাসীয় ion থেকে ionic solid গঠনের শক্তি-পরিবর্তন; এর মান ion-এর আধান ও আকারের উপর প্রবলভাবে নির্ভরশীল।</p>
+          </div>
+          <div class="mini-card">
+            <h3 data-bn="কঠিন বনাম গলিত/দ্রবীভূত" data-en="Solid vs molten/aqueous">কঠিন বনাম গলিত/দ্রবীভূত</h3>
+            <p class="muted" data-bn="কঠিন অবস্থায় ion lattice-এ আবদ্ধ—তাই বিদ্যুৎ পরিবহন করে না। গলিত বা জলীয় দ্রবণে ion চলনশীল হয়, তাই বিদ্যুৎ পরিবাহিতা দেখা যায়। Ionic solid সাধারণত কঠিন, ভঙ্গুর এবং উচ্চ গলনাঙ্কযুক্ত।" data-en="In a solid, ions are locked in the lattice, so it does not conduct. In molten or aqueous states the ions can move, enabling conduction. Ionic solids are generally hard, brittle and high-melting.">কঠিন অবস্থায় ion lattice-এ আবদ্ধ—তাই বিদ্যুৎ পরিবহন করে না। গলিত বা জলীয় দ্রবণে ion চলনশীল হয়, তাই বিদ্যুৎ পরিবাহিতা দেখা যায়। Ionic solid সাধারণত কঠিন, ভঙ্গুর এবং উচ্চ গলনাঙ্কযুক্ত।</p>
+          </div>
+          <div class="mini-card try-box">
+            <span class="tag">Try It</span>
+            <h3 data-bn="কতটি electron স্থানান্তরিত হবে?" data-en="How many electrons are transferred?">কতটি electron স্থানান্তরিত হবে?</h3>
+            <div class="control">
+              <label for="ionicTryCompound" data-bn="যৌগ বেছে নাও" data-en="Choose a compound">যৌগ বেছে নাও</label>
+              <select id="ionicTryCompound"><option value="MgO">MgO</option><option value="CaCl2">CaCl₂</option></select>
+            </div>
+            <div class="option-grid" id="ionicTryOptions"></div>
+            <p id="ionicTryFeedback" class="fine" aria-live="polite" style="margin:10px 0 0"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="covalent" data-track="covalent">
+      <button class="btn complete-btn" type="button" data-complete="covalent"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">03 • Covalent Bonding</p>
+        <h2 data-bn="ইলেকট্রন ভাগ করে নেওয়া" data-en="Sharing electron pairs">ইলেকট্রন ভাগ করে নেওয়া</h2>
+        <p class="lead" data-bn="দুটি atom এক বা একাধিক electron pair ভাগ করে নিলে সমযোজী বন্ধন তৈরি হয়। Molecule বেছে নিয়ে bond order, lone pair এবং polarity দেখো।" data-en="A covalent bond forms when atoms share one or more electron pairs. Choose a molecule to inspect bond order, lone pairs and polarity.">দুটি atom এক বা একাধিক electron pair ভাগ করে নিলে সমযোজী বন্ধন তৈরি হয়। Molecule বেছে নিয়ে bond order, lone pair এবং polarity দেখো।</p>
+      </div>
+      <div class="chip-row" id="moleculeChips" aria-label="Molecule selector"></div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="visual-stage panel">
+          <canvas id="bondCanvas" aria-label="অ্যানিমেটেড electron-sharing visual" data-aria-bn="অ্যানিমেটেড electron-sharing visual" data-aria-en="Animated electron-sharing visual"></canvas>
+          <p class="canvas-label" id="bondCaption"></p>
+        </div>
+        <div class="panel padded">
+          <span class="tag" id="bondTypeTag">Single bond</span>
+          <h3 id="moleculeTitle">H₂ • Lewis structure</h3>
+          <p id="moleculeExplain" class="muted"></p>
+          <div class="grid-2">
+            <div class="mini-card"><small class="muted" data-bn="ভাগ করা pair" data-en="Shared pairs">ভাগ করা pair</small><b id="sharedPairCount" style="display:block;font-size:1.5rem;color:var(--cyan)">1</b></div>
+            <div class="mini-card"><small class="muted" data-bn="বন্ধনের প্রকৃতি" data-en="Bond polarity">বন্ধনের প্রকৃতি</small><b id="polarityReadout" style="display:block;color:var(--amber)">Non-polar</b></div>
+          </div>
+          <p class="fine" id="dipoleNote" style="margin-top:15px"></p>
+          <div class="mini-card did-you-know">
+            <b data-bn="জানতে কি?" data-en="Did you know?">জানতে কি?</b>
+            <p class="fine" style="margin:5px 0 0" data-bn="একটি double বা triple bond-ও VSEPR/steric-number গণনায় একটি <button class='term' data-term='domain'>electron domain</button> হিসেবে ধরা হয়।" data-en="A double or triple bond still counts as one <button class='term' data-term='domain'>electron domain</button> in VSEPR/steric-number calculations.">একটি double বা triple bond-ও VSEPR/steric-number গণনায় একটি <button class="term" data-term="domain">electron domain</button> হিসেবে ধরা হয়।</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel padded" style="margin-top:20px">
+        <h3 data-bn="আয়নিক বনাম সমযোজী—সাধারণ বৈশিষ্ট্য" data-en="Ionic vs covalent—general characteristics">আয়নিক বনাম সমযোজী—সাধারণ বৈশিষ্ট্য</h3>
+        <p class="fine" data-bn="এগুলি সাধারণ প্রবণতা; giant covalent network, polar molecular substance ও অন্যান্য ক্ষেত্রে ব্যতিক্রম আছে।" data-en="These are general trends; giant covalent networks, polar molecular substances and other cases provide exceptions.">এগুলি সাধারণ প্রবণতা; giant covalent network, polar molecular substance ও অন্যান্য ক্ষেত্রে ব্যতিক্রম আছে।</p>
+        <div class="table-scroll">
+          <table class="comparison">
+            <thead><tr><th data-bn="বৈশিষ্ট্য" data-en="Feature">বৈশিষ্ট্য</th><th data-bn="আয়নিক" data-en="Ionic">আয়নিক</th><th data-bn="সমযোজী" data-en="Covalent">সমযোজী</th></tr></thead>
+            <tbody>
+              <tr><td data-bn="গঠন" data-en="Formation">গঠন</td><td data-bn="electron স্থানান্তর ও ion আকর্ষণ" data-en="Electron transfer and ionic attraction">electron স্থানান্তর ও ion আকর্ষণ</td><td data-bn="electron pair ভাগ" data-en="Sharing electron pairs">electron pair ভাগ</td></tr>
+              <tr><td data-bn="গঠনকারী কণা" data-en="Particles">গঠনকারী কণা</td><td data-bn="Cation ও anion" data-en="Cations and anions">Cation ও anion</td><td data-bn="সাধারণত molecule/atom network" data-en="Usually molecules/atomic networks">সাধারণত molecule/atom network</td></tr>
+              <tr><td data-bn="দিকনির্ভরতা" data-en="Directionality">দিকনির্ভরতা</td><td data-bn="প্রধানত অদিকনির্ভর" data-en="Largely non-directional">প্রধানত অদিকনির্ভর</td><td data-bn="দিকনির্ভর" data-en="Directional">দিকনির্ভর</td></tr>
+              <tr><td data-bn="গলন/স্ফুটনাঙ্ক" data-en="Melting/boiling point">গলন/স্ফুটনাঙ্ক</td><td data-bn="সাধারণত উচ্চ" data-en="Usually high">সাধারণত উচ্চ</td><td data-bn="simple molecule-এ সাধারণত কম" data-en="Usually low for simple molecules">simple molecule-এ সাধারণত কম</td></tr>
+              <tr><td data-bn="বিদ্যুৎ পরিবাহিতা" data-en="Electrical conductivity">বিদ্যুৎ পরিবাহিতা</td><td data-bn="গলিত/জলীয় অবস্থায়" data-en="When molten or aqueous">গলিত/জলীয় অবস্থায়</td><td data-bn="সাধারণত দুর্বল" data-en="Generally poor">সাধারণত দুর্বল</td></tr>
+              <tr><td data-bn="দ্রাব্যতা" data-en="Solubility">দ্রাব্যতা</td><td data-bn="অনেকটি polar solvent-এ দ্রবণীয়" data-en="Many dissolve in polar solvents">অনেকটি polar solvent-এ দ্রবণীয়</td><td data-bn="polarity-র সঙ্গে দ্রাবকের মিল গুরুত্বপূর্ণ" data-en="Depends strongly on matching solvent polarity">polarity-র সঙ্গে দ্রাবকের মিল গুরুত্বপূর্ণ</td></tr>
+              <tr><td data-bn="উদাহরণ" data-en="Examples">উদাহরণ</td><td>NaCl, MgO</td><td>H₂O, CH₄, N₂</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="quantum" data-track="quantum">
+      <button class="btn complete-btn" type="button" data-complete="quantum"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">04 • Quantum Numbers</p>
+        <h2 data-bn="একটি electron-এর চারটি পরিচয়" data-en="Four coordinates for an electron">একটি electron-এর চারটি পরিচয়</h2>
+        <p class="lead" data-bn="n shell নির্দেশ করে, l subshell-এর ধরন, mₗ orbital-এর orientation এবং mₛ spin projection নির্দেশ করে। বৈধ সমন্বয় নিজে তৈরি করো।" data-en="n identifies the shell, l the subshell type, mₗ the orbital orientation, and mₛ the spin projection. Build a valid combination yourself.">n shell নির্দেশ করে, l subshell-এর ধরন, mₗ orbital-এর orientation এবং mₛ spin projection নির্দেশ করে। বৈধ সমন্বয় নিজে তৈরি করো।</p>
+      </div>
+      <div class="panel padded">
+        <div class="quantum-controls">
+          <div class="control"><label for="nSelect">n</label><select id="nSelect"></select></div>
+          <div class="control"><label for="lSelect">l</label><select id="lSelect"></select></div>
+          <div class="control"><label for="mlSelect">m<sub>l</sub></label><select id="mlSelect"></select></div>
+          <div class="control"><label for="msSelect">m<sub>s</sub></label><select id="msSelect"><option value="0.5">+½</option><option value="-0.5">−½</option></select></div>
+        </div>
+        <div class="quantum-readout">
+          <span class="quantum-code" id="quantumCode">(n, l, mₗ, mₛ) = (2, 0, 0, +½)</span>
+          <span id="quantumValidity" style="color:var(--green);font-weight:800"></span>
+        </div>
+        <div class="hierarchy" aria-label="Shell to electron hierarchy">
+          <div><b data-bn="Shell" data-en="Shell">Shell</b><small class="muted">n</small></div>
+          <div><b data-bn="Subshell" data-en="Subshell">Subshell</b><small class="muted">l = s, p, d, f</small></div>
+          <div><b data-bn="Orbital" data-en="Orbital">Orbital</b><small class="muted">m<sub>l</sub></small></div>
+          <div><b data-bn="Electron" data-en="Electron">Electron</b><small class="muted">m<sub>s</sub></small></div>
+        </div>
+        <div class="mini-card">
+          <h3 data-bn="Orbital box visualizer" data-en="Orbital box visualizer">Orbital box visualizer</h3>
+          <p id="orbitalBoxCaption" class="fine"></p>
+          <div class="orbital-boxes" id="orbitalBoxes" aria-label="Orbital box diagram"></div>
+        </div>
+      </div>
+      <div class="grid-4" style="margin-top:18px">
+        <article class="mini-card"><span class="tag">n</span><h3 data-bn="প্রধান সংখ্যা" data-en="Principal number">প্রধান সংখ্যা</h3><p class="fine" data-bn="মান: 1, 2, 3…; shell, আনুমানিক আকার ও শক্তি নির্ধারণ করে। উদাহরণ: n=3 মানে তৃতীয় shell।" data-en="Values: 1, 2, 3…; determines shell, approximate size and energy. Example: n=3 means the third shell.">মান: 1, 2, 3…; shell, আনুমানিক আকার ও শক্তি নির্ধারণ করে। উদাহরণ: n=3 মানে তৃতীয় shell।</p></article>
+        <article class="mini-card"><span class="tag">l</span><h3 data-bn="সহকারী সংখ্যা" data-en="Azimuthal number">সহকারী সংখ্যা</h3><p class="fine" data-bn="মান: 0 থেকে n−1; subshell ও orbital shape নির্দেশ করে। 0=s, 1=p, 2=d, 3=f।" data-en="Values: 0 to n−1; identifies subshell and orbital shape. 0=s, 1=p, 2=d, 3=f.">মান: 0 থেকে n−1; subshell ও orbital shape নির্দেশ করে। 0=s, 1=p, 2=d, 3=f।</p></article>
+        <article class="mini-card"><span class="tag">m<sub>l</sub></span><h3 data-bn="চৌম্বক সংখ্যা" data-en="Magnetic number">চৌম্বক সংখ্যা</h3><p class="fine" data-bn="মান: −l থেকে +l; একটি subshell-এর নির্দিষ্ট orbital/orientation নির্দেশ করে। l=1 হলে −1, 0, +1।" data-en="Values: −l through +l; identifies a particular orbital/orientation. For l=1: −1, 0, +1.">মান: −l থেকে +l; একটি subshell-এর নির্দিষ্ট orbital/orientation নির্দেশ করে। l=1 হলে −1, 0, +1।</p></article>
+        <article class="mini-card"><span class="tag">m<sub>s</sub></span><h3 data-bn="স্পিন সংখ্যা" data-en="Spin number">স্পিন সংখ্যা</h3><p class="fine" data-bn="কেবল +½ অথবা −½; spin projection নির্দেশ করে। একই orbital-এর দুই electron-এর spin বিপরীত।" data-en="Only +½ or −½; identifies spin projection. Two electrons in one orbital have opposite spins.">কেবল +½ অথবা −½; spin projection নির্দেশ করে। একই orbital-এর দুই electron-এর spin বিপরীত।</p></article>
+      </div>
+    </section>
+
+    <section id="orbitals" data-track="orbitals">
+      <button class="btn complete-btn" type="button" data-complete="orbitals"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">05 • Orbital Shapes</p>
+        <h2 data-bn="সম্ভাবনার ত্রিমাত্রিক মানচিত্র" data-en="Three-dimensional maps of probability">সম্ভাবনার ত্রিমাত্রিক মানচিত্র</h2>
+        <p class="lead" data-bn="Orbital boundary surface electron-এর নির্দিষ্ট পথ নয়; এটি এমন অঞ্চল ঘিরে দেখায় যেখানে electron পাওয়ার সম্ভাবনা বেশি। Viewer-এ drag করে ঘোরাও।" data-en="An orbital boundary surface is not an electron’s fixed path; it encloses a region of high probability. Drag the viewer to rotate.">Orbital boundary surface electron-এর নির্দিষ্ট পথ নয়; এটি এমন অঞ্চল ঘিরে দেখায় যেখানে electron পাওয়ার সম্ভাবনা বেশি। Viewer-এ drag করে ঘোরাও।</p>
+      </div>
+      <div class="grid-4 orbital-cards" id="orbitalCards">
+        <article class="mini-card active" tabindex="0" data-orbital="s"><div class="orbital-glyph"><span class="glyph-s"></span></div><h3>1s / 2s</h3><p class="fine" data-bn="l=0, mₗ=0 • গোলীয়। 2s-এ একটি radial node থাকে।" data-en="l=0, mₗ=0 • Spherical. 2s has one radial node.">l=0, mₗ=0 • গোলীয়। 2s-এ একটি radial node থাকে।</p></article>
+        <article class="mini-card" tabindex="0" data-orbital="p"><div class="orbital-glyph"><span class="glyph-p"></span></div><h3>2p<sub>x</sub>, 2p<sub>y</sub>, 2p<sub>z</sub></h3><p class="fine" data-bn="l=1, mₗ=−1,0,+1 • পরস্পর লম্ব orientation-এ dumbbell। একটি angular nodal plane।" data-en="l=1, mₗ=−1,0,+1 • Mutually perpendicular dumbbells. One angular nodal plane.">l=1, mₗ=−1,0,+1 • পরস্পর লম্ব orientation-এ dumbbell। একটি angular nodal plane।</p></article>
+        <article class="mini-card" tabindex="0" data-orbital="d"><div class="orbital-glyph"><span class="glyph-d"></span></div><h3>d<sub>xy</sub>, d<sub>yz</sub>, d<sub>zx</sub>, d<sub>x²−y²</sub></h3><p class="fine" data-bn="l=2 • চারটি lobe; orientation অনুযায়ী axis-এর মাঝে বা axis বরাবর। দুটি angular node।" data-en="l=2 • Four lobes, between or along axes depending on orientation. Two angular nodes.">l=2 • চারটি lobe; orientation অনুযায়ী axis-এর মাঝে বা axis বরাবর। দুটি angular node।</p></article>
+        <article class="mini-card" tabindex="0" data-orbital="dz2"><div class="orbital-glyph"><span class="glyph-dz"></span></div><h3>d<sub>z²</sub></h3><p class="fine" data-bn="l=2, সাধারণত mₗ=0 ভিত্তির সঙ্গে যুক্ত • z-axis-এ দুই lobe ও মাঝখানে torus।" data-en="l=2, commonly associated with the mₗ=0 basis • Two z-axis lobes with a central torus.">l=2, সাধারণত mₗ=0 ভিত্তির সঙ্গে যুক্ত • z-axis-এ দুই lobe ও মাঝখানে torus।</p></article>
+      </div>
+      <div class="panel padded" style="margin-top:20px">
+        <div class="viewer-toolbar">
+          <div class="control"><label for="orbitalSelect" data-bn="Orbital বেছে নাও" data-en="Choose orbital">Orbital বেছে নাও</label><select id="orbitalSelect"><option value="s">1s / 2s</option><option value="p">2p</option><option value="d">dxy / dx²−y²</option><option value="dz2">dz²</option></select></div>
+          <div class="control"><label for="orbitalZoom"><span data-bn="Zoom" data-en="Zoom">Zoom</span>: <b id="orbitalZoomValue">100%</b></label><input id="orbitalZoom" type="range" min="65" max="150" value="100"></div>
+          <button class="btn" type="button" id="orbitalReset" data-bn="↻ Reset" data-en="↻ Reset">↻ Reset</button>
+        </div>
+        <div class="visual-stage">
+          <canvas id="orbitalCanvas" aria-label="ঘোরানো যায় এমন orbital phase viewer" data-aria-bn="ঘোরানো যায় এমন orbital phase viewer" data-aria-en="Draggable orbital phase viewer"></canvas>
+          <p class="canvas-label" data-bn="Drag: rotate • slider: zoom" data-en="Drag: rotate • slider: zoom">Drag: rotate • slider: zoom</p>
+        </div>
+        <div class="legend"><span><i class="swatch"></i><span data-bn="Wave function-এর + phase" data-en="+ phase of wave function">Wave function-এর + phase</span></span><span><i class="swatch violet"></i><span data-bn="Wave function-এর − phase" data-en="− phase of wave function">Wave function-এর − phase</span></span></div>
+        <p class="fine" style="margin:12px 0 0" data-bn="দুই রং ভিন্ন বৈদ্যুতিক আধান বোঝায় না; এগুলি wave function-এর বিপরীত phase বোঝায়। Boundary surface-এর ভিতরেও probability সর্বত্র সমান নয়।" data-en="The two colours do not mean different electric charges; they represent opposite phases of the wave function. Probability is not uniform even inside a boundary surface.">দুই রং ভিন্ন বৈদ্যুতিক আধান বোঝায় না; এগুলি wave function-এর বিপরীত phase বোঝায়। Boundary surface-এর ভিতরেও probability সর্বত্র সমান নয়।</p>
+      </div>
+    </section>
+
+    <section id="drago" data-track="drago">
+      <button class="btn complete-btn" type="button" data-complete="drago"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">06 • Drago’s Rule</p>
+        <h2 data-bn="Hybridisation কখন দুর্বল ব্যাখ্যা?" data-en="When is hybridisation a weak explanation?">Hybridisation কখন দুর্বল ব্যাখ্যা?</h2>
+        <p class="lead" data-bn="Drago’s Rule একটি qualitative explanatory guideline—universal law নয়। কিছু ভারী p-block hydride-এ প্রায় অপরিবর্তিত p-orbital দিয়ে bonding ব্যাখ্যা করা বেশি স্বাভাবিক।" data-en="Drago’s Rule is a qualitative explanatory guideline, not a universal law. In some heavier p-block hydrides, bonding is more naturally described using nearly unhybridised p orbitals.">Drago’s Rule একটি qualitative explanatory guideline—universal law নয়। কিছু ভারী p-block hydride-এ প্রায় অপরিবর্তিত p-orbital দিয়ে bonding ব্যাখ্যা করা বেশি স্বাভাবিক।</p>
+      </div>
+      <div class="grid-2">
+        <div class="panel padded">
+          <h3 data-bn="সাধারণ প্রয়োগের শর্ত" data-en="Typical applicability conditions">সাধারণ প্রয়োগের শর্ত</h3>
+          <ol class="condition-list">
+            <li data-bn="Central atom সাধারণত period 3 বা পরবর্তী period-এর p-block element।" data-en="The central atom is typically a period-3 or heavier p-block element.">Central atom সাধারণত period 3 বা পরবর্তী period-এর p-block element।</li>
+            <li data-bn="Central atom-এ অন্তত একটি lone pair থাকে।" data-en="The central atom has at least one lone pair.">Central atom-এ অন্তত একটি lone pair থাকে।</li>
+            <li data-bn="Terminal atom তুলনামূলক electropositive—hydrogen একটি পরিচিত উদাহরণ।" data-en="Terminal atoms are relatively electropositive; hydrogen is a common example.">Terminal atom তুলনামূলক electropositive—hydrogen একটি পরিচিত উদাহরণ।</li>
+            <li data-bn="Central atom-এর electronegativity তুলনামূলক কম (প্রচলিত guideline-এ প্রায় 2.5 বা কম)।" data-en="The central atom has relatively low electronegativity (about 2.5 or less in the usual guideline).">Central atom-এর electronegativity তুলনামূলক কম (প্রচলিত guideline-এ প্রায় 2.5 বা কম)।</li>
+            <li data-bn="তাই conventional hybridisation না ধরেও প্রায় pure p-orbital bonding যুক্তিযুক্ত হতে পারে।" data-en="Thus, nearly pure p-orbital bonding may be reasonable without invoking conventional hybridisation.">তাই conventional hybridisation না ধরেও প্রায় pure p-orbital bonding যুক্তিযুক্ত হতে পারে।</li>
+          </ol>
+        </div>
+        <div>
+          <div class="chip-row" id="dragoChips" aria-label="Drago molecule selector"></div>
+          <div class="visual-stage panel" style="margin-top:12px">
+            <canvas id="dragoCanvas" aria-label="আণবিক bond-angle model" data-aria-bn="আণবিক bond-angle model" data-aria-en="Molecular bond-angle model"></canvas>
+            <p class="canvas-label" id="dragoCanvasLabel"></p>
+          </div>
+        </div>
+      </div>
+      <div class="panel padded" style="margin-top:20px">
+        <div class="grid-2">
+          <div>
+            <span class="tag" id="dragoFormula">PH₃</span>
+            <h3 id="dragoTitle"></h3>
+            <p id="dragoExplain" class="muted"></p>
+          </div>
+          <div class="angle-compare">
+            <div><small class="muted" data-bn="আদর্শ hybrid angle" data-en="Ideal hybrid angle">আদর্শ hybrid angle</small><strong id="idealAngle">109.5°</strong></div>
+            <div><small class="muted" data-bn="পর্যবেক্ষিত/আনুমানিক" data-en="Observed/approximate">পর্যবেক্ষিত/আনুমানিক</small><strong id="observedAngle">93.5°</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="geometry" data-track="geometry">
+      <button class="btn complete-btn" type="button" data-complete="geometry"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">07 • VSEPR Explorer</p>
+        <h2 data-bn="Steric number ও molecular geometry" data-en="Steric number & molecular geometry">Steric number ও molecular geometry</h2>
+        <p class="lead" data-bn="Electron geometry সব electron domain গণনা করে; molecular shape কেবল atom-এর অবস্থান বর্ণনা করে। Lone pair যোগ করে এই পার্থক্য দেখো।" data-en="Electron geometry counts all electron domains; molecular shape describes only atom positions. Add lone pairs to see the distinction.">Electron geometry সব electron domain গণনা করে; molecular shape কেবল atom-এর অবস্থান বর্ণনা করে। Lone pair যোগ করে এই পার্থক্য দেখো।</p>
+      </div>
+      <p class="formula">Steric number = <span data-bn="σ bond-এর সংখ্যা" data-en="number of σ bonds">σ bond-এর সংখ্যা</span> + <span data-bn="central atom-এর lone pair-এর সংখ্যা" data-en="number of lone pairs on central atom">central atom-এর lone pair-এর সংখ্যা</span></p>
+      <div class="geometry-layout" style="margin-top:20px">
+        <div class="stack">
+          <div class="panel padded">
+            <div class="control"><label for="snSelect" data-bn="Steric number" data-en="Steric number">Steric number</label><select id="snSelect"><option value="2">SN 2</option><option value="3">SN 3</option><option value="4" selected>SN 4</option><option value="5">SN 5</option><option value="6">SN 6</option></select></div>
+            <div class="button-row" style="margin-top:14px">
+              <button class="btn" type="button" id="removeLone" data-bn="− Lone pair" data-en="− Lone pair">− Lone pair</button>
+              <button class="btn primary" type="button" id="addLone" data-bn="+ Lone pair" data-en="+ Lone pair">+ Lone pair</button>
+            </div>
+            <div class="shape-readout">
+              <div><small data-bn="Electron geometry" data-en="Electron geometry">Electron geometry</small><b id="electronGeometry">Tetrahedral</b></div>
+              <div><small data-bn="Molecular shape" data-en="Molecular shape">Molecular shape</small><b id="molecularShape">Tetrahedral</b></div>
+              <div><small>AXE notation</small><b id="axeNotation">AX₄</b></div>
+              <div><small data-bn="Ideal angle" data-en="Ideal angle">Ideal angle</small><b id="shapeAngle">109.5°</b></div>
+              <div><small data-bn="প্রচলিত label" data-en="Conventional label">প্রচলিত label</small><b id="hybridLabel">sp³</b></div>
+              <div><small data-bn="উদাহরণ" data-en="Example">উদাহরণ</small><b id="shapeExample">CH₄</b></div>
+            </div>
+            <p class="fine" id="shapeNote" style="margin:14px 0 0"></p>
+          </div>
+          <div class="panel padded">
+            <h3 data-bn="Steric-number calculator" data-en="Steric-number calculator">Steric-number calculator</h3>
+            <div class="grid-2">
+              <div class="control"><label for="sigmaInput" data-bn="σ bond" data-en="σ bonds">σ bond</label><input id="sigmaInput" type="number" min="0" max="6" value="3"></div>
+              <div class="control"><label for="loneInput" data-bn="Lone pair" data-en="Lone pairs">Lone pair</label><input id="loneInput" type="number" min="0" max="4" value="1"></div>
+            </div>
+            <div class="geometry-result mini-card" id="calculatorResult" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="panel padded">
+          <div class="viewer-toolbar">
+            <div><span class="tag" id="geometryModelTag">AX₄</span><p class="fine" style="margin:7px 0 0" data-bn="Drag করে rotate • slider দিয়ে zoom" data-en="Drag to rotate • use the slider to zoom">Drag করে rotate • slider দিয়ে zoom</p></div>
+            <div class="control"><label for="geometryZoom">Zoom: <b id="geometryZoomValue">100%</b></label><input id="geometryZoom" type="range" min="65" max="150" value="100"></div>
+            <button class="btn" id="geometryReset" type="button" data-bn="↻ Reset" data-en="↻ Reset">↻ Reset</button>
+          </div>
+          <div class="visual-stage">
+            <canvas id="geometryCanvas" aria-label="ইন্টারঅ্যাক্টিভ molecular geometry model" data-aria-bn="ইন্টারঅ্যাক্টিভ molecular geometry model" data-aria-en="Interactive molecular geometry model"></canvas>
+            <p class="canvas-label" id="geometryCanvasLabel"></p>
+          </div>
+          <div class="legend"><span><i class="swatch amber"></i><span data-bn="Central atom" data-en="Central atom">Central atom</span></span><span><i class="swatch"></i><span data-bn="Bond pair / terminal atom" data-en="Bond pair / terminal atom">Bond pair / terminal atom</span></span><span><i class="swatch violet"></i><span data-bn="Lone pair domain" data-en="Lone pair domain">Lone pair domain</span></span></div>
+          <p class="fine" style="margin:12px 0 0" data-bn="SN 5-এ lone pair সাধারণত equatorial position পছন্দ করে, কারণ সেখানে 90° interaction কম। Expanded-octet-এর sp³d/sp³d² label একাদশ শ্রেণির conventional model; আধুনিক bonding description আরও সূক্ষ্ম।" data-en="For SN 5, a lone pair generally prefers an equatorial position because it has fewer 90° interactions. The sp³d/sp³d² labels for expanded octets are conventional Class-XI models; modern bonding descriptions are subtler.">SN 5-এ lone pair সাধারণত equatorial position পছন্দ করে, কারণ সেখানে 90° interaction কম। Expanded-octet-এর sp³d/sp³d² label একাদশ শ্রেণির conventional model; আধুনিক bonding description আরও সূক্ষ্ম।</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="revision" data-track="revision">
+      <button class="btn complete-btn" type="button" data-complete="revision"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
+      <div class="section-head">
+        <p class="eyebrow">08 • Quick Revision</p>
+        <h2 data-bn="দ্রুত পুনরাবৃত্তি" data-en="Quick revision">দ্রুত পুনরাবৃত্তি</h2>
+        <p class="lead" data-bn="পরীক্ষার আগে ছয়টি মূল ধারণা এক নজরে ঝালিয়ে নাও। নীল dotted term-এ hover বা click করলে glossary খুলবে।" data-en="Refresh six core ideas at a glance before an exam. Hover or click a blue dotted term to open the glossary.">পরীক্ষার আগে ছয়টি মূল ধারণা এক নজরে ঝালিয়ে নাও। নীল dotted term-এ hover বা click করলে glossary খুলবে।</p>
+      </div>
+      <div class="grid-3 revision-grid">
+        <article class="mini-card" data-symbol="±"><h3 data-bn="আয়নিক বন্ধন" data-en="Ionic bond">আয়নিক বন্ধন</h3><p class="fine" data-bn="Electron স্থানান্তর → cation ও anion → অদিকনির্ভর electrostatic attraction → lattice।" data-en="Electron transfer → cation and anion → non-directional electrostatic attraction → lattice.">Electron স্থানান্তর → cation ও anion → অদিকনির্ভর electrostatic attraction → lattice।</p></article>
+        <article class="mini-card" data-symbol=":"><h3 data-bn="সমযোজী বন্ধন" data-en="Covalent bond">সমযোজী বন্ধন</h3><p class="fine" data-bn="এক বা একাধিক electron pair ভাগ; bond direction ও orbital overlap গুরুত্বপূর্ণ।" data-en="One or more shared electron pairs; bond direction and orbital overlap matter.">এক বা একাধিক electron pair ভাগ; bond direction ও orbital overlap গুরুত্বপূর্ণ।</p></article>
+        <article class="mini-card" data-symbol="n"><h3 data-bn="কোয়ান্টাম সংখ্যা" data-en="Quantum numbers">কোয়ান্টাম সংখ্যা</h3><p class="fine">n ≥ 1; 0 ≤ l ≤ n−1; −l ≤ m<sub>l</sub> ≤ +l; m<sub>s</sub> = ±½.</p></article>
+        <article class="mini-card" data-symbol="ψ"><h3 data-bn="অরবিটাল" data-en="Orbitals">অরবিটাল</h3><p class="fine" data-bn="s গোলীয়, p dumbbell, অধিকাংশ d চার-lobed; রং <button class='term' data-term='phase'>phase</button> বোঝায়, charge নয়।" data-en="s is spherical, p dumbbell-shaped, most d orbitals four-lobed; colours show <button class='term' data-term='phase'>phase</button>, not charge.">s গোলীয়, p dumbbell, অধিকাংশ d চার-lobed; রং <button class="term" data-term="phase">phase</button> বোঝায়, charge নয়।</p></article>
+        <article class="mini-card" data-symbol="90°"><h3 data-bn="Drago’s Rule" data-en="Drago’s Rule">Drago’s Rule</h3><p class="fine" data-bn="কিছু ভারী p-block hydride-এ প্রায় pure p bonding; কোণ তাই 90°-এর কাছাকাছি। Qualitative guideline।" data-en="Some heavier p-block hydrides use nearly pure-p bonding, giving angles near 90°. A qualitative guideline.">কিছু ভারী p-block hydride-এ প্রায় pure p bonding; কোণ তাই 90°-এর কাছাকাছি। Qualitative guideline।</p></article>
+        <article class="mini-card" data-symbol="AXE"><h3>VSEPR</h3><p class="fine" data-bn="Electron domain-এর বিকর্ষণ কমিয়ে geometry। Lone pair–lone pair > lone pair–bond pair > bond pair–bond pair repulsion।" data-en="Geometry minimises electron-domain repulsions. LP–LP > LP–BP > BP–BP repulsion.">Electron domain-এর বিকর্ষণ কমিয়ে geometry। Lone pair–lone pair > lone pair–bond pair > bond pair–bond pair repulsion।</p></article>
+      </div>
+      <div class="grid-2" style="margin-top:18px">
+        <article class="mini-card did-you-know"><h3 data-bn="জানতে কি?" data-en="Did you know?">জানতে কি?</h3><p class="muted" data-bn="Ionic এবং covalent—দুটি সম্পূর্ণ বিচ্ছিন্ন বাক্স নয়। বাস্তব bond-এ electron density-এর বণ্টন একটি continuum তৈরি করে।" data-en="Ionic and covalent are not two perfectly isolated boxes. Real bonds form a continuum of electron-density distributions.">Ionic এবং covalent—দুটি সম্পূর্ণ বিচ্ছিন্ন বাক্স নয়। বাস্তব bond-এ electron density-এর বণ্টন একটি continuum তৈরি করে।</p></article>
+        <article class="mini-card did-you-know"><h3 data-bn="পরীক্ষার কৌশল" data-en="Exam strategy">পরীক্ষার কৌশল</h3><p class="muted" data-bn="Shape নির্ণয়ে প্রথমে Lewis structure → electron domain → steric number → electron geometry → lone pair বাদ দিয়ে molecular shape।" data-en="For shape questions: Lewis structure → electron domains → steric number → electron geometry → ignore lone-pair positions for molecular shape.">Shape নির্ণয়ে প্রথমে Lewis structure → electron domain → steric number → electron geometry → lone pair বাদ দিয়ে molecular shape।</p></article>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-head" style="margin-inline:auto;text-align:center">
+        <p class="eyebrow" style="justify-content:center">Final Lab Check</p>
+        <h2 data-bn="১৫ প্রশ্নের ধারণা কুইজ" data-en="15-question concept quiz">১৫ প্রশ্নের ধারণা কুইজ</h2>
+        <p class="lead" style="margin-inline:auto" data-bn="প্রতিটি উত্তরের সঙ্গে তাৎক্ষণিক ব্যাখ্যা। উত্তর বদলানো যাবে; শেষে topic-wise performance ও ভুলের review পাবে।" data-en="Instant explanation for every answer. You can change answers and receive topic-wise performance plus a review of mistakes.">প্রতিটি উত্তরের সঙ্গে তাৎক্ষণিক ব্যাখ্যা। উত্তর বদলানো যাবে; শেষে topic-wise performance ও ভুলের review পাবে।</p>
+      </div>
+      <div class="quiz-shell panel" id="quizShell">
+        <div class="quiz-top">
+          <div class="quiz-progress" aria-label="Quiz progress"><span id="quizProgress"></span></div>
+        </div>
+        <div class="quiz-content" id="quizContent"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="brand"><span class="brand-mark" aria-hidden="true"><span></span></span><span>BondLab</span></div>
+        <p class="muted" style="margin-top:14px" data-bn="একাদশ শ্রেণির শিক্ষার্থীদের ধারণা অনুশীলনের জন্য তৈরি। এটি শিক্ষামূলক prototype; পাঠ্যবই ও শিক্ষকের নির্দেশনার পরিপূরক, বিকল্প নয়।" data-en="Built for Class XI concept practice. This educational prototype complements—not replaces—your textbook and teacher’s guidance.">একাদশ শ্রেণির শিক্ষার্থীদের ধারণা অনুশীলনের জন্য তৈরি। এটি শিক্ষামূলক prototype; পাঠ্যবই ও শিক্ষকের নির্দেশনার পরিপূরক, বিকল্প নয়।</p>
+        <button class="btn danger" type="button" id="resetProgress" data-bn="সংরক্ষিত অগ্রগতি মুছো" data-en="Reset saved progress">সংরক্ষিত অগ্রগতি মুছো</button>
+      </div>
+      <div>
+        <h3 data-bn="বিষয়সমূহ" data-en="Topics">বিষয়সমূহ</h3>
+        <ul><li>Periodic trends</li><li>Ionic & covalent bonding</li><li>Quantum numbers & orbitals</li><li>Drago’s Rule</li><li>VSEPR geometry</li></ul>
+      </div>
+      <div>
+        <h3 data-bn="Keyboard shortcut" data-en="Keyboard shortcuts">Keyboard shortcut</h3>
+        <ul>
+          <li><span class="kbd">B</span> <span data-bn="বাংলা" data-en="Bengali">বাংলা</span></li>
+          <li><span class="kbd">E</span> English</li>
+          <li><span class="kbd">Q</span> <span data-bn="কুইজে যাও" data-en="Go to quiz">কুইজে যাও</span></li>
+          <li><span class="kbd">←</span> / <span class="kbd">→</span> <span data-bn="কুইজে আগের/পরের" data-en="Previous/next quiz item">কুইজে আগের/পরের</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span data-bn="Made for Class XI Chemistry Learners • এই device-এই data সংরক্ষিত হয়।" data-en="Made for Class XI Chemistry Learners • Data stays on this device.">Made for Class XI Chemistry Learners • এই device-এই data সংরক্ষিত হয়।</span></div>
+  </footer>
+
+  <div class="glossary-pop" id="glossaryPop" role="tooltip" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    /* ---------- Shared state, translation, storage and accessibility ---------- */
+    var storageKey = "bondlab-v1";
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch (error) { saved = {}; }
+
+    var state = {
+      lang: saved.lang === "en" ? "en" : "bn",
+      completed: new Set(Array.isArray(saved.completed) ? saved.completed : []),
+      bestScore: Number(saved.bestScore || 0),
+      trend: "electronegativity",
+      selectedElement: "F",
+      ionicStep: 0,
+      molecule: "H2",
+      orbital: "s",
+      drago: "PH3",
+      sn: 4,
+      lonePairs: 0,
+      quizIndex: 0,
+      quizAnswers: Array(15).fill(null),
+      quizFinished: false
+    };
+
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var toastTimer;
+
+    function saveState() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          lang: state.lang,
+          completed: Array.from(state.completed),
+          bestScore: state.bestScore
+        }));
+      } catch (error) {
+        showToast(state.lang === "bn" ? "এই browser-এ সংরক্ষণ করা গেল না।" : "Progress could not be saved in this browser.");
+      }
+    }
+
+    function localText(value) {
+      if (value == null) return "";
+      if (typeof value === "string") return value;
+      return value[state.lang] || value.en || value.bn || "";
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 2600);
+    }
+
+    function setLanguage(lang, announce) {
+      state.lang = lang;
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-bn][data-en]").forEach(function (el) {
+        el.innerHTML = el.getAttribute("data-" + lang);
+      });
+      document.querySelectorAll("[data-aria-bn][data-aria-en]").forEach(function (el) {
+        el.setAttribute("aria-label", el.getAttribute("data-aria-" + lang));
+      });
+      document.querySelectorAll("[data-lang]").forEach(function (button) {
+        button.setAttribute("aria-pressed", String(button.getAttribute("data-lang") === lang));
+      });
+      saveState();
+      renderProgress();
+      renderTrends();
+      updateContinuum();
+      renderIonic();
+      renderIonicTry();
+      renderMolecule();
+      renderQuantum();
+      drawOrbital();
+      renderDrago();
+      renderGeometry();
+      updateCalculator();
+      if (state.quizFinished) renderResults(); else renderQuiz();
+      if (announce) showToast(lang === "bn" ? "ভাষা বাংলা করা হয়েছে।" : "Language changed to English.");
+    }
+
+    document.querySelectorAll("[data-lang]").forEach(function (button) {
+      button.addEventListener("click", function () { setLanguage(button.getAttribute("data-lang"), true); });
+    });
+
+    var menuToggle = document.getElementById("menuToggle");
+    var mainNav = document.getElementById("mainNav");
+    menuToggle.addEventListener("click", function () {
+      var open = mainNav.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", String(open));
+      menuToggle.setAttribute("aria-label", state.lang === "bn" ? (open ? "মেনু বন্ধ করো" : "মেনু খোলো") : (open ? "Close menu" : "Open menu"));
+    });
+    mainNav.addEventListener("click", function (event) {
+      if (event.target.closest("a")) {
+        mainNav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    var trackedIds = ["trends", "ionic", "covalent", "quantum", "orbitals", "drago", "geometry", "revision"];
+    function renderProgress() {
+      var count = trackedIds.filter(function (id) { return state.completed.has(id); }).length;
+      var pct = Math.round(count / trackedIds.length * 100);
+      var hero = document.getElementById("heroProgress");
+      hero.style.setProperty("--progress", pct + "%");
+      hero.querySelector("b").textContent = pct + "%";
+      hero.querySelector("span span").textContent = state.lang === "bn" ? "সম্পন্ন" : "complete";
+      document.querySelectorAll("[data-complete]").forEach(function (button) {
+        var done = state.completed.has(button.getAttribute("data-complete"));
+        button.classList.toggle("done", done);
+        var text = button.querySelector("span:last-child");
+        text.textContent = done ? (state.lang === "bn" ? "সম্পন্ন হয়েছে" : "Completed") : (state.lang === "bn" ? "অধ্যায় সম্পন্ন" : "Mark complete");
+        button.setAttribute("aria-pressed", String(done));
+      });
+    }
+
+    document.querySelectorAll("[data-complete]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var id = button.getAttribute("data-complete");
+        if (state.completed.has(id)) state.completed.delete(id); else state.completed.add(id);
+        saveState();
+        renderProgress();
+        showToast(state.completed.has(id)
+          ? (state.lang === "bn" ? "অধ্যায়টি সম্পন্ন হিসেবে সংরক্ষিত।" : "Chapter saved as complete.")
+          : (state.lang === "bn" ? "সম্পন্ন চিহ্নটি সরানো হয়েছে।" : "Completion mark removed."));
+      });
+    });
+
+    document.getElementById("resetProgress").addEventListener("click", function () {
+      var message = state.lang === "bn"
+        ? "সব অধ্যায়ের অগ্রগতি ও সেরা কুইজ স্কোর মুছে ফেলবে?"
+        : "Reset all chapter progress and the best quiz score?";
+      if (!window.confirm(message)) return;
+      state.completed.clear();
+      state.bestScore = 0;
+      state.quizAnswers = Array(15).fill(null);
+      state.quizIndex = 0;
+      state.quizFinished = false;
+      saveState();
+      renderProgress();
+      renderQuiz();
+      showToast(state.lang === "bn" ? "সংরক্ষিত অগ্রগতি মুছে ফেলা হয়েছে।" : "Saved progress has been reset.");
+    });
+
+    /* ---------- Periodic trends ---------- */
+    var trends = {
+      radius: {
+        name: { bn: "পরমাণবিক ব্যাসার্ধ", en: "Atomic radius" },
+        angle: 148,
+        color: "#5ce6a1",
+        reason: {
+          bn: "সাধারণ প্রবণতা: একই period-এ কার্যকর nuclear charge বাড়ায় ব্যাসার্ধ কমে; group-এ নীচে নতুন shell যোগ হওয়ায় ব্যাসার্ধ বাড়ে।",
+          en: "General trend: across a period, increasing effective nuclear charge reduces radius; down a group, added shells increase radius."
+        },
+        bond: {
+          bn: "বড় atom সাধারণত valence electron কম শক্তভাবে ধরে; electropositive character ও ionic cation গঠনের প্রবণতা বাড়তে পারে।",
+          en: "Larger atoms generally hold valence electrons less tightly, often increasing electropositive character and cation formation."
+        }
+      },
+      ionization: {
+        name: { bn: "আয়নীকরণ এনথ্যালপি", en: "Ionisation enthalpy" },
+        angle: -32,
+        color: "#46e3ff",
+        reason: {
+          bn: "সাধারণত period-এ ডানে বাড়ে এবং group-এ নীচে কমে। Subshell ও electron-pairing-এর কারণে কিছু গুরুত্বপূর্ণ ব্যতিক্রম আছে।",
+          en: "It generally rises across a period and falls down a group. Subshell and electron-pairing effects create important exceptions."
+        },
+        bond: {
+          bn: "কম ionisation enthalpy-র atom electron হারিয়ে cation ও ionic bond গঠনে তুলনামূলক আগ্রহী।",
+          en: "Atoms with lower ionisation enthalpy lose electrons more readily, favouring cation and ionic-bond formation."
+        }
+      },
+      electronGain: {
+        name: { bn: "ইলেকট্রন গ্রহণ প্রবণতা", en: "Electron-gain tendency" },
+        angle: -32,
+        color: "#aa7bff",
+        reason: {
+          bn: "সাধারণত period-এ ডানে electron গ্রহণ অনুকূল হয়; halogen-এ প্রবণতা বেশি। Noble gas ও পূর্ণ/অর্ধপূর্ণ subshell ব্যতিক্রম তৈরি করে।",
+          en: "Electron gain generally becomes more favourable across a period and is strong for halogens. Noble gases and filled/half-filled subshells are exceptions."
+        },
+        bond: {
+          bn: "উচ্চ electron-gain tendency-র non-metal electron গ্রহণ করে anion বা electron-sharing bond গঠন করতে পারে।",
+          en: "A non-metal with strong electron-gain tendency may form an anion or participate strongly in electron sharing."
+        }
+      },
+      electronegativity: {
+        name: { bn: "তড়িৎঋণাত্মকতা", en: "Electronegativity" },
+        angle: -32,
+        color: "#46e3ff",
+        reason: {
+          bn: "সাধারণ প্রবণতা: period-এ ডানে ও group-এ উপরে electronegativity বাড়ে; F সর্বোচ্চ। Noble gas-এর মান অনেক scale-এ সংজ্ঞায়িত নয়।",
+          en: "General trend: electronegativity increases across a period and up a group; F is highest. Noble-gas values are undefined on many scales."
+        },
+        bond: {
+          bn: "দুই bonded atom-এর electronegativity difference বাড়লে সাধারণত bond polarity ও ionic character বাড়ে।",
+          en: "A larger electronegativity difference between bonded atoms generally increases bond polarity and ionic character."
+        }
+      },
+      metallic: {
+        name: { bn: "ধাতব চরিত্র", en: "Metallic character" },
+        angle: 148,
+        color: "#ffc75a",
+        reason: {
+          bn: "সাধারণত period-এ বামে এবং group-এ নীচে ধাতব চরিত্র বাড়ে; electron হারানোর সহজতার সঙ্গে এর সম্পর্ক আছে।",
+          en: "Metallic character generally increases to the left across a period and down a group, tracking ease of electron loss."
+        },
+        bond: {
+          bn: "ধাতব atom সহজে delocalised electron বা cation তৈরি করে; non-metal-এর সঙ্গে ionic character বাড়তে পারে।",
+          en: "Metal atoms readily form delocalised electrons or cations; with non-metals this can increase ionic character."
+        }
+      },
+      polarity: {
+        name: { bn: "বন্ধন ধ্রুবীয়তা", en: "Bond polarity" },
+        angle: -32,
+        color: "#ffc75a",
+        reason: {
+          bn: "এটি একক atom-এর intrinsic trend নয়; bonded atom দুটির electronegativity difference যত বেশি, electron density তত অসমভাবে বণ্টিত হয়।",
+          en: "This is not an intrinsic single-atom trend; the greater the electronegativity difference, the more uneven the electron-density distribution."
+        },
+        bond: {
+          bn: "Polar covalent bond-এ δ⁺ ও δ⁻ তৈরি হয়; molecular polarity আবার bond dipole ও geometry—দুটির উপর নির্ভর করে।",
+          en: "A polar covalent bond develops δ⁺ and δ⁻; molecular polarity depends on both bond dipoles and geometry."
+        }
+      },
+      ionic: {
+        name: { bn: "আয়নিক চরিত্র", en: "Ionic character" },
+        angle: -32,
+        color: "#aa7bff",
+        reason: {
+          bn: "Electronegativity difference বাড়লে সাধারণত ionic character বাড়ে, তবে bond বাস্তবে একটি continuum—কঠোর শ্রেণিবিভাজন নয়।",
+          en: "Ionic character generally rises with electronegativity difference, but real bonding is a continuum rather than a rigid classification."
+        },
+        bond: {
+          bn: "বিপরীত আধানের স্থিতিশীলতা, ion-এর আকার, lattice energy ও polarisation-ও প্রকৃত ionic character-কে প্রভাবিত করে।",
+          en: "Charge stability, ion size, lattice energy and polarisation also influence actual ionic character."
+        }
+      }
+    };
+
+    var elements = [
+      { z:1, symbol:"H", name:{bn:"হাইড্রোজেন",en:"Hydrogen"}, p:1, g:1, c:1 },
+      { z:2, symbol:"He", name:{bn:"হিলিয়াম",en:"Helium"}, p:1, g:18, c:8 },
+      { z:3, symbol:"Li", name:{bn:"লিথিয়াম",en:"Lithium"}, p:2, g:1, c:1 },
+      { z:4, symbol:"Be", name:{bn:"বেরিলিয়াম",en:"Beryllium"}, p:2, g:2, c:2 },
+      { z:5, symbol:"B", name:{bn:"বোরন",en:"Boron"}, p:2, g:13, c:3 },
+      { z:6, symbol:"C", name:{bn:"কার্বন",en:"Carbon"}, p:2, g:14, c:4 },
+      { z:7, symbol:"N", name:{bn:"নাইট্রোজেন",en:"Nitrogen"}, p:2, g:15, c:5 },
+      { z:8, symbol:"O", name:{bn:"অক্সিজেন",en:"Oxygen"}, p:2, g:16, c:6 },
+      { z:9, symbol:"F", name:{bn:"ফ্লুওরিন",en:"Fluorine"}, p:2, g:17, c:7 },
+      { z:10, symbol:"Ne", name:{bn:"নিয়ন",en:"Neon"}, p:2, g:18, c:8 },
+      { z:11, symbol:"Na", name:{bn:"সোডিয়াম",en:"Sodium"}, p:3, g:1, c:1 },
+      { z:12, symbol:"Mg", name:{bn:"ম্যাগনেশিয়াম",en:"Magnesium"}, p:3, g:2, c:2 },
+      { z:13, symbol:"Al", name:{bn:"অ্যালুমিনিয়াম",en:"Aluminium"}, p:3, g:13, c:3 },
+      { z:14, symbol:"Si", name:{bn:"সিলিকন",en:"Silicon"}, p:3, g:14, c:4 },
+      { z:15, symbol:"P", name:{bn:"ফসফরাস",en:"Phosphorus"}, p:3, g:15, c:5 },
+      { z:16, symbol:"S", name:{bn:"সালফার",en:"Sulfur"}, p:3, g:16, c:6 },
+      { z:17, symbol:"Cl", name:{bn:"ক্লোরিন",en:"Chlorine"}, p:3, g:17, c:7 },
+      { z:18, symbol:"Ar", name:{bn:"আর্গন",en:"Argon"}, p:3, g:18, c:8 }
+    ];
+
+    function trendScore(el, key) {
+      var rightUp = (4 - el.p) * 18 + el.c * 9;
+      var leftDown = el.p * 20 + (9 - el.c) * 9;
+      if ((key === "electronegativity" || key === "electronGain") && el.g === 18) return 7;
+      if (key === "radius" || key === "metallic") return Math.max(12, Math.min(96, leftDown));
+      if (key === "polarity" || key === "ionic") return Math.max(12, Math.min(92, rightUp));
+      return Math.max(12, Math.min(96, rightUp));
+    }
+
+    function elementBondingText(el) {
+      var family;
+      if (el.g === 1 && el.symbol !== "H") {
+        family = state.lang === "bn" ? "সহজে +1 cation; non-metal-এর সঙ্গে bond সাধারণত অনেকটাই ionic।" : "Readily forms a +1 cation; bonds with non-metals are often strongly ionic.";
+      } else if (el.g === 2) {
+        family = state.lang === "bn" ? "সাধারণত +2 cation গঠন করে; ছোট, উচ্চ-charge ion covalent character-ও বাড়াতে পারে।" : "Usually forms a +2 cation; small, highly charged ions can also increase covalent character.";
+      } else if (el.g === 17) {
+        family = state.lang === "bn" ? "একটি electron গ্রহণ বা একটি covalent bond করে octet পূর্ণ করতে আগ্রহী।" : "Tends to gain one electron or form one covalent bond to complete an octet.";
+      } else if (el.g === 18) {
+        family = state.lang === "bn" ? "বন্ধ valence shell; সাধারণ অবস্থায় কম reactive।" : "Closed valence shell; generally unreactive under ordinary conditions.";
+      } else if (el.g === 14) {
+        family = state.lang === "bn" ? "Electron sharing ও directional covalent bonding বিশেষ গুরুত্বপূর্ণ।" : "Electron sharing and directional covalent bonding are especially important.";
+      } else {
+        family = state.lang === "bn" ? "Valence configuration অনুযায়ী electron sharing বা ion formation—দুই পথই সম্ভব।" : "Depending on valence configuration, electron sharing or ion formation may occur.";
+      }
+      return family + " " + localText(trends[state.trend].bond);
+    }
+
+    function renderTrends() {
+      var chipHost = document.getElementById("trendChips");
+      chipHost.innerHTML = "";
+      Object.keys(trends).forEach(function (key) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.setAttribute("aria-pressed", String(state.trend === key));
+        button.textContent = localText(trends[key].name);
+        button.addEventListener("click", function () { state.trend = key; renderTrends(); });
+        chipHost.appendChild(button);
+      });
+
+      var grid = document.getElementById("periodicGrid");
+      grid.innerHTML = "";
+      var trend = trends[state.trend];
+      elements.forEach(function (el) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "element" + (state.selectedElement === el.symbol ? " selected" : "");
+        button.style.gridColumn = String(el.c);
+        button.style.gridRow = String(el.p);
+        button.style.setProperty("--element-color", trend.color);
+        button.style.setProperty("--intensity", trendScore(el, state.trend) + "%");
+        button.setAttribute("aria-label", localText(el.name) + ", " + localText(trend.name));
+        button.innerHTML = "<span class='z'>" + el.z + "</span><b>" + el.symbol + "</b><small>" + localText(el.name) + "</small>";
+        button.addEventListener("click", function () { state.selectedElement = el.symbol; renderTrends(); });
+        grid.appendChild(button);
+      });
+
+      var selected = elements.find(function (el) { return el.symbol === state.selectedElement; }) || elements[8];
+      document.getElementById("trendArrow").style.setProperty("--arrow-angle", trend.angle + "deg");
+      document.getElementById("trendTag").textContent = localText(trend.name);
+      document.getElementById("trendTitle").textContent = localText(trend.name);
+      document.getElementById("trendReason").textContent = localText(trend.reason);
+      document.getElementById("selectedElement").textContent = selected.symbol + " • " +
+        (state.lang === "bn" ? "পর্যায় " : "Period ") + selected.p + " • " +
+        (state.lang === "bn" ? "গ্রুপ " : "Group ") + selected.g;
+      document.getElementById("elementBonding").textContent = elementBondingText(selected);
+    }
+
+    function updateContinuum() {
+      var slider = document.getElementById("enSlider");
+      var value = Number(slider.value);
+      document.getElementById("enValue").textContent = value.toFixed(1);
+      document.getElementById("continuumMarker").style.setProperty("--bond-x", (value / 3.5 * 100).toFixed(1));
+      var label;
+      if (value < .4) label = state.lang === "bn" ? "Model: প্রধানত অ-ধ্রুবীয় সমযোজী" : "Model: mostly non-polar covalent";
+      else if (value < 1.7) label = state.lang === "bn" ? "Model: ধ্রুবীয় সমযোজী" : "Model: polar covalent";
+      else label = state.lang === "bn" ? "Model: প্রধানত আয়নিক" : "Model: predominantly ionic";
+      document.getElementById("bondClass").textContent = label;
+    }
+    document.getElementById("enSlider").addEventListener("input", updateContinuum);
+
+    /* ---------- Ionic-bond stepper and Try It ---------- */
+    var ionicSteps = [
+      { bn: "Na-এর বহিঃস্তরে ১টি এবং Cl-এর বহিঃস্তরে ৭টি electron আছে।", en: "Na has 1 valence electron; Cl has 7." },
+      { bn: "Na-এর valence electron Cl-এর দিকে স্থানান্তরিত হচ্ছে।", en: "Na’s valence electron begins transferring to Cl." },
+      { bn: "Na হারিয়ে Na⁺; Cl গ্রহণ করে Cl⁻। উভয়ের স্থিতিশীল noble-gas configuration হয়।", en: "Na becomes Na⁺ and Cl becomes Cl⁻, each attaining a stable noble-gas configuration." },
+      { bn: "বিপরীত আধানের Coulombic attraction আয়ন দুটিকে কাছে আনে।", en: "Coulombic attraction between opposite charges draws the ions together." },
+      { bn: "অনেক Na⁺ ও Cl⁻ একটি পুনরাবৃত্ত ত্রিমাত্রিক ionic lattice গঠন করে।", en: "Many Na⁺ and Cl⁻ ions form a repeating three-dimensional ionic lattice." }
+    ];
+    var ionicReplayTimers = [];
+
+    function renderIonic() {
+      state.ionicStep = Math.max(0, Math.min(ionicSteps.length - 1, state.ionicStep));
+      document.getElementById("ionicStage").setAttribute("data-step", String(state.ionicStep));
+      document.getElementById("ionicCaption").textContent = localText(ionicSteps[state.ionicStep]);
+      document.getElementById("ionicPrev").disabled = state.ionicStep === 0;
+      document.getElementById("ionicNext").disabled = state.ionicStep === ionicSteps.length - 1;
+      var dots = document.getElementById("ionicDots");
+      dots.innerHTML = "";
+      ionicSteps.forEach(function (_, index) {
+        var dot = document.createElement("i");
+        if (index === state.ionicStep) dot.className = "active";
+        dots.appendChild(dot);
+      });
+    }
+    function clearIonicReplay() {
+      ionicReplayTimers.forEach(clearTimeout);
+      ionicReplayTimers = [];
+    }
+    document.getElementById("ionicPrev").addEventListener("click", function () { clearIonicReplay(); state.ionicStep--; renderIonic(); });
+    document.getElementById("ionicNext").addEventListener("click", function () { clearIonicReplay(); state.ionicStep++; renderIonic(); });
+    document.getElementById("ionicReplay").addEventListener("click", function () {
+      clearIonicReplay();
+      state.ionicStep = 0;
+      renderIonic();
+      if (reduceMotion.matches) return;
+      ionicSteps.slice(1).forEach(function (_, index) {
+        ionicReplayTimers.push(setTimeout(function () { state.ionicStep = index + 1; renderIonic(); }, (index + 1) * 1050));
+      });
+    });
+
+    function renderIonicTry() {
+      var compound = document.getElementById("ionicTryCompound").value;
+      var host = document.getElementById("ionicTryOptions");
+      host.innerHTML = "";
+      [1, 2, 3, 4].forEach(function (number) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.setAttribute("data-letter", String(number));
+        button.textContent = number + (state.lang === "bn" ? "টি electron" : " electron" + (number > 1 ? "s" : ""));
+        button.addEventListener("click", function () {
+          host.querySelectorAll(".option").forEach(function (item) { item.classList.remove("correct", "incorrect"); });
+          button.classList.add(number === 2 ? "correct" : "incorrect");
+          var feedback;
+          if (compound === "MgO") {
+            feedback = number === 2
+              ? { bn: "সঠিক—Mg মোট ২টি electron O-কে দেয়: Mg²⁺ ও O²⁻।", en: "Correct—Mg transfers 2 electrons to O, forming Mg²⁺ and O²⁻." }
+              : { bn: "আবার ভাবো: Mg-এর electrovalency 2 এবং O-এরও 2।", en: "Try again: both Mg and O have electrovalency 2 here." };
+          } else {
+            feedback = number === 2
+              ? { bn: "সঠিক—Ca মোট ২টি electron দেয়; প্রতিটি Cl একটি করে গ্রহণ করে: Ca²⁺ + 2Cl⁻।", en: "Correct—Ca transfers 2 electrons in total, one to each Cl: Ca²⁺ + 2Cl⁻." }
+              : { bn: "আবার ভাবো: দুটি Cl-এর প্রত্যেকটি একটি করে electron গ্রহণ করে।", en: "Try again: each of the two Cl atoms accepts one electron." };
+          }
+          document.getElementById("ionicTryFeedback").textContent = localText(feedback);
+        });
+        host.appendChild(button);
+      });
+      document.getElementById("ionicTryFeedback").textContent = state.lang === "bn" ? "একটি উত্তর বেছে নাও।" : "Choose an answer.";
+    }
+    document.getElementById("ionicTryCompound").addEventListener("change", renderIonicTry);
+
+    /* ---------- Covalent-bond visualiser ---------- */
+    var molecules = {
+      H2: {
+        formula: "H₂", atoms: ["H", "H"], order: 1, lone: 0,
+        type: {bn:"একক বন্ধন",en:"Single bond"}, polarity:{bn:"অ-ধ্রুবীয়",en:"Non-polar"},
+        explain:{bn:"প্রতিটি H একটি electron দেয়; ভাগ করা pair উভয় H-কে duplet দেয়।",en:"Each H contributes one electron; the shared pair gives both H atoms a duplet."}
+      },
+      Cl2: {
+        formula: "Cl₂", atoms: ["Cl", "Cl"], order: 1, lone: 6,
+        type:{bn:"একক বন্ধন",en:"Single bond"}, polarity:{bn:"অ-ধ্রুবীয়",en:"Non-polar"},
+        explain:{bn:"একটি shared pair একক bond; প্রতিটি Cl-এ তিনটি lone pair থাকে।",en:"One shared pair forms a single bond; each Cl retains three lone pairs."}
+      },
+      HCl: {
+        formula: "HCl", atoms: ["H", "Cl"], order: 1, lone: 3,
+        type:{bn:"ধ্রুবীয় একক বন্ধন",en:"Polar single bond"}, polarity:{bn:"ধ্রুবীয়",en:"Polar"},
+        explain:{bn:"Cl বেশি electronegative, তাই shared electron density Cl-এর দিকে সরে Hδ⁺—Clδ⁻ হয়।",en:"Cl is more electronegative, so shared electron density shifts toward Cl, producing Hδ⁺—Clδ⁻."}
+      },
+      O2: {
+        formula: "O₂", atoms: ["O", "O"], order: 2, lone: 4,
+        type:{bn:"দ্বিবন্ধন",en:"Double bond"}, polarity:{bn:"অ-ধ্রুবীয়",en:"Non-polar"},
+        explain:{bn:"দুইটি shared pair O=O double bond তৈরি করে; প্রতিটি O-তে দুইটি lone pair থাকে।",en:"Two shared pairs form the O=O double bond; each O retains two lone pairs."}
+      },
+      N2: {
+        formula: "N₂", atoms: ["N", "N"], order: 3, lone: 2,
+        type:{bn:"ত্রিবন্ধন",en:"Triple bond"}, polarity:{bn:"অ-ধ্রুবীয়",en:"Non-polar"},
+        explain:{bn:"তিনটি shared pair N≡N triple bond তৈরি করে; প্রতিটি N-এ একটি lone pair।",en:"Three shared pairs form the N≡N triple bond; each N retains one lone pair."}
+      },
+      CH4: {
+        formula: "CH₄", atoms:["C","H","H","H","H"], order:4, lone:0,
+        type:{bn:"চারটি একক বন্ধন",en:"Four single bonds"}, polarity:{bn:"সামগ্রিকভাবে অ-ধ্রুবীয়",en:"Overall non-polar"},
+        explain:{bn:"C চারটি H-এর সঙ্গে চারটি σ bond করে; tetrahedral symmetry-তে bond dipole বাতিল হয়।",en:"C forms four σ bonds to H; tetrahedral symmetry cancels the bond dipoles."}
+      },
+      NH3: {
+        formula:"NH₃", atoms:["N","H","H","H"], order:3, lone:1,
+        type:{bn:"তিনটি একক বন্ধন",en:"Three single bonds"}, polarity:{bn:"ধ্রুবীয় molecule",en:"Polar molecule"},
+        explain:{bn:"N-এ তিনটি bond pair ও একটি lone pair; trigonal pyramidal shape-এ dipole বাতিল হয় না।",en:"N has three bond pairs and one lone pair; the trigonal-pyramidal dipoles do not cancel."}
+      },
+      H2O: {
+        formula:"H₂O", atoms:["O","H","H"], order:2, lone:2,
+        type:{bn:"দুটি একক বন্ধন",en:"Two single bonds"}, polarity:{bn:"ধ্রুবীয় molecule",en:"Polar molecule"},
+        explain:{bn:"O-তে দুইটি bond pair ও দুইটি lone pair; bent geometry-র জন্য net dipole থাকে।",en:"O has two bond pairs and two lone pairs; bent geometry gives a net dipole."}
+      }
+    };
+
+    var bondCanvas = document.getElementById("bondCanvas");
+    function setupCanvas(canvas) {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var width = Math.max(1, Math.round(rect.width));
+      var height = Math.max(1, Math.round(rect.height));
+      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+      }
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx:ctx, w:width, h:height };
+    }
+
+    function roundAtom(ctx, x, y, radius, label, color) {
+      var gradient = ctx.createRadialGradient(x - radius * .3, y - radius * .35, 3, x, y, radius);
+      gradient.addColorStop(0, "#ffffff");
+      gradient.addColorStop(.2, color);
+      gradient.addColorStop(1, "#0b2038");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#eefaff";
+      ctx.font = "800 " + Math.max(15, radius * .48) + "px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, x, y);
+    }
+
+    function drawElectronPair(ctx, x, y, angle, color) {
+      var dx = Math.cos(angle) * 7;
+      var dy = Math.sin(angle) * 7;
+      ctx.fillStyle = color || "#ffc75a";
+      [1, -1].forEach(function (sign) {
+        ctx.beginPath();
+        ctx.arc(x + dx * sign, y + dy * sign, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawBondScene(time) {
+      var view = setupCanvas(bondCanvas);
+      var ctx = view.ctx, w = view.w, h = view.h;
+      ctx.clearRect(0, 0, w, h);
+      var data = molecules[state.molecule];
+      var cx = w / 2, cy = h / 2 - 12;
+      var animated = reduceMotion.matches ? 0 : time / 800;
+      if (data.atoms.length === 2) {
+        var gap = Math.min(130, w * .23);
+        var x1 = cx - gap, x2 = cx + gap;
+        var y = cy;
+        for (var b = 0; b < data.order; b++) {
+          var offset = (b - (data.order - 1) / 2) * 15;
+          ctx.strokeStyle = b % 2 ? "#aa7bff" : "#46e3ff";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(x1 + 38, y + offset);
+          ctx.lineTo(x2 - 38, y + offset);
+          ctx.stroke();
+          var move = Math.sin(animated + b * 1.8) * 24;
+          drawElectronPair(ctx, cx + move, y + offset, Math.PI / 2, b % 2 ? "#aa7bff" : "#ffc75a");
+        }
+        roundAtom(ctx, x1, y, 43, data.atoms[0], "#aa7bff");
+        roundAtom(ctx, x2, y, 43, data.atoms[1], "#46e3ff");
+        var pairsEach = Math.floor(data.lone / 2);
+        for (var p = 0; p < pairsEach; p++) {
+          var angle = (p / Math.max(1, pairsEach)) * Math.PI * 2 + Math.PI / 2;
+          drawElectronPair(ctx, x1 + Math.cos(angle) * 60, y + Math.sin(angle) * 60, angle, "#aa7bff");
+          drawElectronPair(ctx, x2 + Math.cos(angle) * 60, y + Math.sin(angle) * 60, angle, "#46e3ff");
+        }
+        if (state.molecule === "HCl") {
+          ctx.fillStyle = "#ffc75a";
+          ctx.font = "800 18px system-ui";
+          ctx.fillText("δ⁺", x1, y - 70);
+          ctx.fillText("δ⁻", x2, y - 70);
+          ctx.strokeStyle = "#ffc75a";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(x1 + 10, y + 85);
+          ctx.lineTo(x2 - 10, y + 85);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x2 - 10, y + 85);
+          ctx.lineTo(x2 - 23, y + 77);
+          ctx.moveTo(x2 - 10, y + 85);
+          ctx.lineTo(x2 - 23, y + 93);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x1 + 18, y + 76);
+          ctx.lineTo(x1 + 18, y + 94);
+          ctx.stroke();
+        }
+      } else {
+        var terminals = data.atoms.slice(1);
+        var radius = Math.min(125, w * .27, h * .31);
+        var points = [];
+        if (state.molecule === "H2O") {
+          points = [{x:cx - radius * .76,y:cy + radius * .62},{x:cx + radius * .76,y:cy + radius * .62}];
+        } else if (state.molecule === "NH3") {
+          points = [{x:cx,y:cy - radius},{x:cx - radius * .86,y:cy + radius * .58},{x:cx + radius * .86,y:cy + radius * .58}];
+        } else {
+          points = [{x:cx,y:cy-radius},{x:cx+radius,y:cy},{x:cx,y:cy+radius},{x:cx-radius,y:cy}];
+        }
+        points.forEach(function (point, index) {
+          ctx.strokeStyle = "#46e3ff";
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(point.x, point.y); ctx.stroke();
+          roundAtom(ctx, point.x, point.y, 29, terminals[index], "#46e3ff");
+          var mx = (point.x + cx) / 2, my = (point.y + cy) / 2;
+          drawElectronPair(ctx, mx, my, Math.atan2(point.y-cy, point.x-cx) + Math.PI/2, "#ffc75a");
+        });
+        roundAtom(ctx, cx, cy, 43, data.atoms[0], "#aa7bff");
+        for (var lp = 0; lp < data.lone; lp++) {
+          var lpAngle = -Math.PI / 2 + (lp - (data.lone - 1) / 2) * .65;
+          drawElectronPair(ctx, cx + Math.cos(lpAngle) * 65, cy + Math.sin(lpAngle) * 65, lpAngle, "#aa7bff");
+        }
+      }
+      requestAnimationFrame(drawBondScene);
+    }
+
+    function renderMolecule() {
+      var host = document.getElementById("moleculeChips");
+      host.innerHTML = "";
+      Object.keys(molecules).forEach(function (key) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.setAttribute("aria-pressed", String(state.molecule === key));
+        button.textContent = molecules[key].formula;
+        button.addEventListener("click", function () { state.molecule = key; renderMolecule(); });
+        host.appendChild(button);
+      });
+      var data = molecules[state.molecule];
+      document.getElementById("bondTypeTag").textContent = localText(data.type);
+      document.getElementById("moleculeTitle").textContent = data.formula + " • Lewis structure";
+      document.getElementById("moleculeExplain").textContent = localText(data.explain);
+      document.getElementById("sharedPairCount").textContent = data.order;
+      document.getElementById("polarityReadout").textContent = localText(data.polarity);
+      document.getElementById("bondCaption").textContent = state.lang === "bn"
+        ? "উজ্জ্বল dot-গুলি ভাগ করা electron pair; স্থির বাইরের dot-গুলি lone pair।"
+        : "Bright moving dots are shared electron pairs; outer dots are lone pairs.";
+      document.getElementById("dipoleNote").textContent = state.molecule === "HCl"
+        ? (state.lang === "bn" ? "Dipole arrow-এর মাথা Clδ⁻-এর দিকে; crossed tail Hδ⁺ প্রান্ত দেখায়।" : "The dipole arrow points to Clδ⁻; its crossed tail marks the Hδ⁺ end.")
+        : (state.lang === "bn" ? "Bond polarity ও molecular geometry মিলিয়ে net molecular dipole নির্ধারিত হয়।" : "Bond polarity and molecular geometry together determine the net molecular dipole.");
+    }
+
+    /* ---------- Quantum-number controls ---------- */
+    var subshellLetters = ["s", "p", "d", "f"];
+    var nSelect = document.getElementById("nSelect");
+    var lSelect = document.getElementById("lSelect");
+    var mlSelect = document.getElementById("mlSelect");
+    var msSelect = document.getElementById("msSelect");
+    for (var ni = 1; ni <= 4; ni++) {
+      var nOption = document.createElement("option");
+      nOption.value = String(ni);
+      nOption.textContent = "n = " + ni;
+      nSelect.appendChild(nOption);
+    }
+    nSelect.value = "2";
+
+    function buildLValues() {
+      var n = Number(nSelect.value);
+      var previous = lSelect.value;
+      lSelect.innerHTML = "";
+      for (var l = 0; l < n; l++) {
+        var option = document.createElement("option");
+        option.value = String(l);
+        option.textContent = "l = " + l + " (" + subshellLetters[l] + ")";
+        lSelect.appendChild(option);
+      }
+      var invalid = document.createElement("option");
+      invalid.value = "invalid";
+      invalid.textContent = "l = " + n + (state.lang === "bn" ? " • invalid পরীক্ষা" : " • test invalid");
+      lSelect.appendChild(invalid);
+      if (previous && Array.from(lSelect.options).some(function (op) { return op.value === previous; })) lSelect.value = previous;
+      else lSelect.value = "0";
+      buildMlValues();
+    }
+
+    function buildMlValues() {
+      mlSelect.innerHTML = "";
+      if (lSelect.value === "invalid") {
+        var invalid = document.createElement("option");
+        invalid.textContent = "—";
+        invalid.value = "";
+        mlSelect.appendChild(invalid);
+        mlSelect.disabled = true;
+      } else {
+        mlSelect.disabled = false;
+        var l = Number(lSelect.value);
+        for (var m = -l; m <= l; m++) {
+          var option = document.createElement("option");
+          option.value = String(m);
+          option.textContent = (m > 0 ? "+" : "") + m;
+          mlSelect.appendChild(option);
+        }
+      }
+      renderQuantum();
+    }
+
+    function renderQuantum() {
+      var n = Number(nSelect.value);
+      var invalid = lSelect.value === "invalid";
+      var l = invalid ? n : Number(lSelect.value);
+      var ml = invalid ? "—" : Number(mlSelect.value);
+      var ms = Number(msSelect.value);
+      var msText = ms > 0 ? "+½" : "−½";
+      document.getElementById("quantumCode").textContent = "(n, l, mₗ, mₛ) = (" + n + ", " + l + ", " + ml + ", " + msText + ")";
+      var validity = document.getElementById("quantumValidity");
+      if (invalid) {
+        validity.style.color = "var(--danger)";
+        validity.textContent = state.lang === "bn"
+          ? "Invalid: নির্দিষ্ট n-এর জন্য l সর্বোচ্চ n−1; তাই l=n অনুমোদিত নয়।"
+          : "Invalid: for a given n, l can be at most n−1; l=n is not allowed.";
+      } else {
+        validity.style.color = "var(--green)";
+        validity.textContent = state.lang === "bn" ? "✓ বৈধ quantum-number combination" : "✓ Valid quantum-number combination";
+      }
+      var host = document.getElementById("orbitalBoxes");
+      host.innerHTML = "";
+      if (!invalid) {
+        for (var m = -l; m <= l; m++) {
+          var box = document.createElement("div");
+          box.className = "orbital-box";
+          if (m === Number(ml)) box.innerHTML = "<span class='" + (ms > 0 ? "spin-up" : "spin-down") + "'>" + (ms > 0 ? "↑" : "↓") + "</span>";
+          box.innerHTML += "<small>" + (m > 0 ? "+" : "") + m + "</small>";
+          host.appendChild(box);
+        }
+      }
+      document.getElementById("orbitalBoxCaption").textContent = invalid
+        ? (state.lang === "bn" ? "Invalid l-এর জন্য orbital তৈরি হয় না।" : "No orbital can be built from an invalid l.")
+        : (state.lang === "bn"
+          ? subshellLetters[l] + " subshell-এ " + (2*l+1) + "টি orbital; নির্বাচিত mₗ box-এ mₛ spin দেখানো হয়েছে।"
+          : "The " + subshellLetters[l] + " subshell has " + (2*l+1) + " orbital(s); the selected mₗ box shows the mₛ spin.");
+    }
+    nSelect.addEventListener("change", buildLValues);
+    lSelect.addEventListener("change", buildMlValues);
+    mlSelect.addEventListener("change", renderQuantum);
+    msSelect.addEventListener("change", renderQuantum);
+
+    /* ---------- Orbital phase viewer ---------- */
+    var orbitalCanvas = document.getElementById("orbitalCanvas");
+    var orbitalView = { rx:-.25, ry:.35, zoom:1, dragging:false, x:0, y:0 };
+
+    function rotatePoint(point, rx, ry) {
+      var x = point.x, y = point.y, z = point.z;
+      var cosy = Math.cos(ry), siny = Math.sin(ry);
+      var x1 = x * cosy + z * siny;
+      var z1 = -x * siny + z * cosy;
+      var cosx = Math.cos(rx), sinx = Math.sin(rx);
+      return { x:x1, y:y * cosx - z1 * sinx, z:y * sinx + z1 * cosx };
+    }
+    function projected(point, cx, cy, scale, rx, ry) {
+      var p = rotatePoint(point, rx, ry);
+      var perspective = 1 + p.z * .0012;
+      return { x:cx + p.x * scale * perspective, y:cy + p.y * scale * perspective, z:p.z };
+    }
+    function drawAxis(ctx, cx, cy, scale, axis, color, label, rx, ry) {
+      var end = projected(axis, cx, cy, scale, rx, ry);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(end.x, end.y); ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.font = "700 13px system-ui";
+      ctx.fillText(label, end.x + 6, end.y - 4);
+    }
+    function ellipseLobe(ctx, center, vx, vy, color, alpha) {
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.rotate(Math.atan2(vy, vx));
+      ctx.globalAlpha = alpha || .82;
+      var gradient = ctx.createRadialGradient(-12, -7, 2, 0, 0, 42);
+      gradient.addColorStop(0, "#ffffff");
+      gradient.addColorStop(.18, color);
+      gradient.addColorStop(1, color + "18");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 52, 29, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawOrbital() {
+      var view = setupCanvas(orbitalCanvas);
+      var ctx = view.ctx, w = view.w, h = view.h;
+      ctx.clearRect(0, 0, w, h);
+      var cx = w / 2, cy = h / 2, s = Math.min(w, h) * .24 * orbitalView.zoom;
+      drawAxis(ctx, cx, cy, s * 1.35, {x:1,y:0,z:0}, "#5d7892", "x", orbitalView.rx, orbitalView.ry);
+      drawAxis(ctx, cx, cy, s * 1.35, {x:0,y:-1,z:0}, "#5d7892", "y", orbitalView.rx, orbitalView.ry);
+      drawAxis(ctx, cx, cy, s * 1.35, {x:0,y:0,z:1}, "#5d7892", "z", orbitalView.rx, orbitalView.ry);
+      var type = state.orbital;
+      if (type === "s") {
+        var radius = s * .58;
+        var gradient = ctx.createRadialGradient(cx-radius*.28, cy-radius*.3, 4, cx, cy, radius);
+        gradient.addColorStop(0, "rgba(255,255,255,.93)");
+        gradient.addColorStop(.16, "rgba(70,227,255,.9)");
+        gradient.addColorStop(.72, "rgba(70,227,255,.18)");
+        gradient.addColorStop(1, "rgba(70,227,255,.02)");
+        ctx.fillStyle = gradient;
+        ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#46e3ff"; ctx.stroke();
+        ctx.strokeStyle = "rgba(170,123,255,.62)";
+        ctx.beginPath(); ctx.arc(cx, cy, radius*.48, 0, Math.PI*2); ctx.stroke();
+      } else {
+        var vectors;
+        if (type === "p") vectors = [{x:1,y:0,z:0,c:"#46e3ff"},{x:-1,y:0,z:0,c:"#aa7bff"}];
+        if (type === "d") vectors = [
+          {x:.72,y:.72,z:0,c:"#46e3ff"},{x:-.72,y:-.72,z:0,c:"#46e3ff"},
+          {x:-.72,y:.72,z:0,c:"#aa7bff"},{x:.72,y:-.72,z:0,c:"#aa7bff"}
+        ];
+        if (type === "dz2") vectors = [{x:0,y:-1,z:0,c:"#46e3ff"},{x:0,y:1,z:0,c:"#aa7bff"}];
+        var lobes = vectors.map(function (vector) {
+          var unit = rotatePoint(vector, orbitalView.rx, orbitalView.ry);
+          return {
+            p:projected({x:vector.x*.72,y:vector.y*.72,z:vector.z*.72},cx,cy,s,orbitalView.rx,orbitalView.ry),
+            vx:unit.x, vy:unit.y, color:vector.c
+          };
+        }).sort(function (a,b) { return a.p.z-b.p.z; });
+        lobes.forEach(function (lobe) { ellipseLobe(ctx,lobe.p,lobe.vx,lobe.vy,lobe.color,.78); });
+        if (type === "dz2") {
+          ctx.save();
+          ctx.translate(cx,cy);
+          ctx.rotate(orbitalView.ry*.45);
+          ctx.strokeStyle = "#ffc75a";
+          ctx.lineWidth = 11;
+          ctx.globalAlpha = .72;
+          ctx.beginPath(); ctx.ellipse(0,0,s*.52,s*.17,0,0,Math.PI*2); ctx.stroke();
+          ctx.restore();
+        }
+      }
+      ctx.fillStyle = "#ffc75a";
+      ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
+    }
+    function selectOrbital(type) {
+      state.orbital = type;
+      document.getElementById("orbitalSelect").value = type;
+      document.querySelectorAll("[data-orbital]").forEach(function (card) {
+        card.classList.toggle("active", card.getAttribute("data-orbital") === type);
+      });
+      drawOrbital();
+    }
+    document.querySelectorAll("[data-orbital]").forEach(function (card) {
+      function choose() { selectOrbital(card.getAttribute("data-orbital")); }
+      card.addEventListener("click", choose);
+      card.addEventListener("keydown", function (event) { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(); } });
+    });
+    document.getElementById("orbitalSelect").addEventListener("change", function (event) { selectOrbital(event.target.value); });
+    document.getElementById("orbitalZoom").addEventListener("input", function (event) {
+      orbitalView.zoom = Number(event.target.value) / 100;
+      document.getElementById("orbitalZoomValue").textContent = event.target.value + "%";
+      drawOrbital();
+    });
+    document.getElementById("orbitalReset").addEventListener("click", function () {
+      orbitalView.rx = -.25; orbitalView.ry = .35; orbitalView.zoom = 1;
+      document.getElementById("orbitalZoom").value = "100";
+      document.getElementById("orbitalZoomValue").textContent = "100%";
+      drawOrbital();
+    });
+    orbitalCanvas.addEventListener("pointerdown", function (event) {
+      orbitalView.dragging = true; orbitalView.x = event.clientX; orbitalView.y = event.clientY; orbitalCanvas.setPointerCapture(event.pointerId);
+    });
+    orbitalCanvas.addEventListener("pointermove", function (event) {
+      if (!orbitalView.dragging) return;
+      orbitalView.ry += (event.clientX - orbitalView.x) * .009;
+      orbitalView.rx += (event.clientY - orbitalView.y) * .009;
+      orbitalView.x = event.clientX; orbitalView.y = event.clientY; drawOrbital();
+    });
+    orbitalCanvas.addEventListener("pointerup", function () { orbitalView.dragging = false; });
+
+    /* ---------- Drago’s Rule models ---------- */
+    var dragoData = {
+      PH3: {
+        formula:"PH₃", central:"P", terminal:"H", count:3, lone:1, ideal:"109.5°", observed:"≈93.5°",
+        title:{bn:"PH₃: কোণ 90°-এর এত কাছে কেন?",en:"PH₃: why is the angle so close to 90°?"},
+        explain:{bn:"P-এর 3p orbital-গুলি খুব কম hybridise করে H 1s-এর সঙ্গে bond করতে পারে; তিনটি p orientation পরস্পর প্রায় 90°। Lone pair-এ 3s character বেশি থাকে।",en:"P 3p orbitals can bond to H 1s with little hybridisation; the three p orientations are nearly 90° apart. The lone pair retains substantial 3s character."}
+      },
+      H2S: {
+        formula:"H₂S", central:"S", terminal:"H", count:2, lone:2, ideal:"109.5°", observed:"≈92.1°",
+        title:{bn:"H₂S: bent, কিন্তু প্রায় 92°",en:"H₂S: bent, but near 92°"},
+        explain:{bn:"S-এর প্রায় pure 3p orbital bonding 90°-এর কাছাকাছি কোণ ব্যাখ্যা করে। দুটি lone pair ও দুটি S–H bond থাকে।",en:"Bonding with nearly pure S 3p orbitals explains an angle near 90°. There are two lone pairs and two S–H bonds."}
+      },
+      NH3: {
+        formula:"NH₃", central:"N", terminal:"H", count:3, lone:1, ideal:"109.5°", observed:"≈107°",
+        title:{bn:"NH₃: শক্তিশালী s–p mixing",en:"NH₃: stronger s–p mixing"},
+        explain:{bn:"Period-2 N-এ 2s ও 2p শক্তির ব্যবধান কম, তাই hybrid-like orbital description কার্যকর; lone pair–bond pair repulsion কোণ 109.5° থেকে কমায়।",en:"For period-2 N, the 2s–2p energy gap is smaller, making a hybrid-like description useful; lone-pair–bond-pair repulsion compresses the angle below 109.5°."}
+      },
+      H2O: {
+        formula:"H₂O", central:"O", terminal:"H", count:2, lone:2, ideal:"109.5°", observed:"≈104.5°",
+        title:{bn:"H₂O: দুই lone pair-এর প্রভাব",en:"H₂O: the effect of two lone pairs"},
+        explain:{bn:"Period-2 O-তে s–p mixing গুরুত্বপূর্ণ। দুই lone pair-এর প্রবল repulsion H–O–H angle-কে tetrahedral 109.5° থেকে 104.5°-এ নামায়।",en:"For period-2 O, s–p mixing is important. Strong repulsion from two lone pairs compresses the H–O–H angle from 109.5° to 104.5°."}
+      }
+    };
+    var dragoCanvas = document.getElementById("dragoCanvas");
+    function drawDrago() {
+      var view = setupCanvas(dragoCanvas), ctx=view.ctx, w=view.w, h=view.h;
+      ctx.clearRect(0,0,w,h);
+      var data = dragoData[state.drago];
+      var cx=w/2, cy=h/2-5, r=Math.min(w,h)*.28;
+      var points = data.count === 2
+        ? [{x:cx-r*.82,y:cy+r*.58},{x:cx+r*.82,y:cy+r*.58}]
+        : [{x:cx,y:cy-r},{x:cx-r*.88,y:cy+r*.58},{x:cx+r*.88,y:cy+r*.58}];
+      points.forEach(function (point) {
+        ctx.strokeStyle="#46e3ff"; ctx.lineWidth=5;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(point.x,point.y); ctx.stroke();
+        roundAtom(ctx,point.x,point.y,28,data.terminal,"#46e3ff");
+      });
+      roundAtom(ctx,cx,cy,48,data.central,"#ffc75a");
+      for(var lp=0;lp<data.lone;lp++){
+        var a=-Math.PI/2+(lp-(data.lone-1)/2)*.62;
+        drawElectronPair(ctx,cx+Math.cos(a)*72,cy+Math.sin(a)*72,a,"#aa7bff");
+      }
+      ctx.strokeStyle="#ffc75a";ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(cx,cy,78,.42,2.72);ctx.stroke();
+      ctx.fillStyle="#ffc75a";ctx.font="800 16px system-ui";ctx.textAlign="center";
+      ctx.fillText(data.observed,cx,cy+95);
+      ctx.fillStyle="#a9bfd2";ctx.font="700 12px system-ui";
+      ctx.fillText(state.lang==="bn" ? data.count+"টি bond pair • "+data.lone+"টি lone pair" : data.count+" bond pair(s) • "+data.lone+" lone pair(s)",cx,h-24);
+    }
+    function renderDrago() {
+      var host=document.getElementById("dragoChips");host.innerHTML="";
+      Object.keys(dragoData).forEach(function(key){
+        var button=document.createElement("button");button.type="button";button.className="chip";
+        button.setAttribute("aria-pressed",String(state.drago===key));button.textContent=dragoData[key].formula;
+        button.addEventListener("click",function(){state.drago=key;renderDrago();});host.appendChild(button);
+      });
+      var data=dragoData[state.drago];
+      document.getElementById("dragoFormula").textContent=data.formula;
+      document.getElementById("dragoTitle").textContent=localText(data.title);
+      document.getElementById("dragoExplain").textContent=localText(data.explain);
+      document.getElementById("idealAngle").textContent=data.ideal;
+      document.getElementById("observedAngle").textContent=data.observed;
+      document.getElementById("dragoCanvasLabel").textContent=state.lang==="bn"
+        ? "Amber arc: আনুমানিক bond angle • violet dots: lone pair"
+        : "Amber arc: approximate bond angle • violet dots: lone pairs";
+      drawDrago();
+    }
+
+    /* ---------- Steric number and geometry ---------- */
+    var geometryData = {
+      2:{electron:{bn:"রৈখিক",en:"Linear"},hybrid:"sp",angles:"180°",maxLone:0,
+        positions:[{x:1,y:0,z:0},{x:-1,y:0,z:0}],
+        shapes:[{name:{bn:"রৈখিক",en:"Linear"},example:"CO₂ / BeCl₂",angle:"180°"}]},
+      3:{electron:{bn:"ত্রিকোণীয় সমতল",en:"Trigonal planar"},hybrid:"sp²",angles:"120°",maxLone:1,
+        positions:[{x:0,y:-1,z:0},{x:.866,y:.5,z:0},{x:-.866,y:.5,z:0}],
+        shapes:[
+          {name:{bn:"ত্রিকোণীয় সমতল",en:"Trigonal planar"},example:"BF₃",angle:"120°"},
+          {name:{bn:"কৌণিক",en:"Bent"},example:"SO₂",angle:"<120°"}
+        ]},
+      4:{electron:{bn:"টেট্রাহেড্রাল",en:"Tetrahedral"},hybrid:"sp³",angles:"109.5°",maxLone:2,
+        positions:[{x:.94,y:.35,z:0},{x:-.47,y:.35,z:.81},{x:-.47,y:.35,z:-.81},{x:0,y:-1,z:0}],
+        shapes:[
+          {name:{bn:"টেট্রাহেড্রাল",en:"Tetrahedral"},example:"CH₄",angle:"109.5°"},
+          {name:{bn:"ত্রিকোণীয় পিরামিডাল",en:"Trigonal pyramidal"},example:"NH₃",angle:"≈107°"},
+          {name:{bn:"কৌণিক",en:"Bent"},example:"H₂O",angle:"≈104.5°"}
+        ]},
+      5:{electron:{bn:"ত্রিকোণীয় বাইপিরামিডাল",en:"Trigonal bipyramidal"},hybrid:"sp³d",angles:"90°, 120°, 180°",maxLone:3,
+        positions:[{x:1,y:0,z:0},{x:-.5,y:0,z:.866},{x:-.5,y:0,z:-.866},{x:0,y:1,z:0},{x:0,y:-1,z:0}],
+        shapes:[
+          {name:{bn:"ত্রিকোণীয় বাইপিরামিডাল",en:"Trigonal bipyramidal"},example:"PCl₅",angle:"90°, 120°, 180°"},
+          {name:{bn:"স-স আকৃতি",en:"Seesaw"},example:"SF₄",angle:"<90°, <120°"},
+          {name:{bn:"টি-আকৃতি",en:"T-shaped"},example:"ClF₃",angle:"≈90°, 180°"},
+          {name:{bn:"রৈখিক",en:"Linear"},example:"XeF₂",angle:"180°"}
+        ]},
+      6:{electron:{bn:"অক্টাহেড্রাল",en:"Octahedral"},hybrid:"sp³d²",angles:"90°, 180°",maxLone:2,
+        positions:[{x:0,y:1,z:0},{x:0,y:-1,z:0},{x:1,y:0,z:0},{x:-1,y:0,z:0},{x:0,y:0,z:1},{x:0,y:0,z:-1}],
+        shapes:[
+          {name:{bn:"অক্টাহেড্রাল",en:"Octahedral"},example:"SF₆",angle:"90°, 180°"},
+          {name:{bn:"বর্গ পিরামিডাল",en:"Square pyramidal"},example:"BrF₅",angle:"≈90°, 180°"},
+          {name:{bn:"বর্গ সমতল",en:"Square planar"},example:"XeF₄",angle:"90°, 180°"}
+        ]}
+    };
+    var geometryCanvas=document.getElementById("geometryCanvas");
+    var geometryView={rx:-.35,ry:.55,zoom:1,dragging:false,x:0,y:0};
+    var subDigits={"0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉"};
+    function subNumber(number){return String(number).split("").map(function(d){return subDigits[d]||d;}).join("");}
+    function axeLabel(sn,lone){var x=sn-lone;return "AX"+subNumber(x)+(lone?"E"+subNumber(lone):"");}
+
+    function drawGeometry() {
+      var view=setupCanvas(geometryCanvas),ctx=view.ctx,w=view.w,h=view.h;
+      ctx.clearRect(0,0,w,h);
+      var data=geometryData[state.sn],cx=w/2,cy=h/2,scale=Math.min(w,h)*.29*geometryView.zoom;
+      var points=data.positions.map(function(p,index){
+        var pp=projected(p,cx,cy,scale,geometryView.rx,geometryView.ry);
+        pp.index=index;pp.lone=index<state.lonePairs;return pp;
+      }).sort(function(a,b){return a.z-b.z;});
+      points.forEach(function(point){
+        ctx.strokeStyle=point.lone?"rgba(170,123,255,.62)":"rgba(70,227,255,.72)";
+        ctx.lineWidth=point.z>0?5:3;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(point.x,point.y);ctx.stroke();
+      });
+      points.forEach(function(point){
+        if(point.lone){
+          ctx.save();ctx.translate(point.x,point.y);ctx.rotate(.25);
+          ctx.fillStyle="rgba(170,123,255,.32)";ctx.strokeStyle="#aa7bff";ctx.lineWidth=2;
+          ctx.beginPath();ctx.ellipse(0,0,31,20,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();
+          drawElectronPair(ctx,point.x,point.y,0,"#aa7bff");
+        }else{
+          roundAtom(ctx,point.x,point.y,25,"X","#46e3ff");
+        }
+      });
+      roundAtom(ctx,cx,cy,38,"A","#ffc75a");
+      ctx.strokeStyle="#ffc75a";ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(cx,cy,64,.2,1.32);ctx.stroke();
+      ctx.fillStyle="#ffc75a";ctx.font="800 14px system-ui";ctx.textAlign="center";
+      ctx.fillText(data.shapes[state.lonePairs].angle,cx+52,cy+54);
+    }
+    function renderGeometry(){
+      var data=geometryData[state.sn];
+      if(state.lonePairs>data.maxLone)state.lonePairs=data.maxLone;
+      var shape=data.shapes[state.lonePairs];
+      document.getElementById("snSelect").value=String(state.sn);
+      document.getElementById("electronGeometry").textContent=localText(data.electron);
+      document.getElementById("molecularShape").textContent=localText(shape.name);
+      document.getElementById("axeNotation").textContent=axeLabel(state.sn,state.lonePairs);
+      document.getElementById("geometryModelTag").textContent=axeLabel(state.sn,state.lonePairs);
+      document.getElementById("shapeAngle").textContent=shape.angle;
+      document.getElementById("hybridLabel").textContent=data.hybrid;
+      document.getElementById("shapeExample").textContent=shape.example;
+      document.getElementById("removeLone").disabled=state.lonePairs===0;
+      document.getElementById("addLone").disabled=state.lonePairs===data.maxLone;
+      var note;
+      if(state.sn===5&&state.lonePairs>0){
+        note=state.lang==="bn"?"Lone pair equatorial site-এ রাখা হয়েছে—এতে 90° repulsion কম হয়।":"Lone pairs occupy equatorial sites here, reducing the number of 90° repulsions.";
+      }else{
+        note=state.lang==="bn"?"Electron geometry-তে lone pair-সহ সব domain; molecular shape-এ কেবল atom-এর অবস্থান।":"Electron geometry includes every domain; molecular shape includes only atom positions.";
+      }
+      document.getElementById("shapeNote").textContent=note;
+      document.getElementById("geometryCanvasLabel").textContent=localText(shape.name)+" • "+axeLabel(state.sn,state.lonePairs)+" • "+shape.angle;
+      drawGeometry();
+    }
+    document.getElementById("snSelect").addEventListener("change",function(event){state.sn=Number(event.target.value);state.lonePairs=0;renderGeometry();});
+    document.getElementById("addLone").addEventListener("click",function(){if(state.lonePairs<geometryData[state.sn].maxLone)state.lonePairs++;renderGeometry();});
+    document.getElementById("removeLone").addEventListener("click",function(){if(state.lonePairs>0)state.lonePairs--;renderGeometry();});
+    document.getElementById("geometryZoom").addEventListener("input",function(event){
+      geometryView.zoom=Number(event.target.value)/100;
+      document.getElementById("geometryZoomValue").textContent=event.target.value+"%";drawGeometry();
+    });
+    document.getElementById("geometryReset").addEventListener("click",function(){
+      geometryView.rx=-.35;geometryView.ry=.55;geometryView.zoom=1;
+      document.getElementById("geometryZoom").value="100";document.getElementById("geometryZoomValue").textContent="100%";drawGeometry();
+    });
+    geometryCanvas.addEventListener("pointerdown",function(event){
+      geometryView.dragging=true;geometryView.x=event.clientX;geometryView.y=event.clientY;geometryCanvas.setPointerCapture(event.pointerId);
+    });
+    geometryCanvas.addEventListener("pointermove",function(event){
+      if(!geometryView.dragging)return;
+      geometryView.ry+=(event.clientX-geometryView.x)*.009;geometryView.rx+=(event.clientY-geometryView.y)*.009;
+      geometryView.x=event.clientX;geometryView.y=event.clientY;drawGeometry();
+    });
+    geometryCanvas.addEventListener("pointerup",function(){geometryView.dragging=false;});
+
+    function updateCalculator(){
+      var sigma=Math.max(0,Number(document.getElementById("sigmaInput").value)||0);
+      var lone=Math.max(0,Number(document.getElementById("loneInput").value)||0);
+      var sn=sigma+lone,host=document.getElementById("calculatorResult");
+      if(sn<2||sn>6||!geometryData[sn]||lone>geometryData[sn].maxLone||sigma<1){
+        host.innerHTML="<b style='color:var(--danger)'>"+(state.lang==="bn"?"এই input-এ SN 2–6-এর সমর্থিত বৈধ shape তৈরি হচ্ছে না। σ bond অন্তত 1 হওয়া চাই এবং lone-pair combination-টি VSEPR map-এর মধ্যে হতে হবে।":"These inputs do not produce a supported valid SN 2–6 shape. Use at least one σ bond and a lone-pair combination in the VSEPR map.")+"</b>";
+        return;
+      }
+      var data=geometryData[sn],shape=data.shapes[lone];
+      host.innerHTML="<b style='color:var(--cyan);font-size:1.2rem'>SN "+sn+" • "+axeLabel(sn,lone)+"</b><p class='fine' style='margin:6px 0 0'>"+
+        (state.lang==="bn"?"Electron geometry: ":"Electron geometry: ")+localText(data.electron)+" • "+
+        (state.lang==="bn"?"সম্ভাব্য shape: ":"Possible shape: ")+localText(shape.name)+" • "+data.hybrid+
+        "</p><p class='fine' style='margin:6px 0 0'>"+(state.lang==="bn"?"মনে রাখো: double/triple bond-ও এখানে একটি electron domain ও একটি σ bond হিসেবে গণ্য।":"Remember: a double or triple bond counts as one electron domain and contains one σ bond here.")+"</p>";
+    }
+    document.getElementById("sigmaInput").addEventListener("input",updateCalculator);
+    document.getElementById("loneInput").addEventListener("input",updateCalculator);
+
+    /* ---------- Exactly 15 bilingual quiz questions ---------- */
+    var quizQuestions = [
+      {
+        topic:"bonding",type:{bn:"MCQ",en:"MCQ"},
+        q:{bn:"কঠিন NaCl সাধারণত বিদ্যুৎ পরিবহন করে না, কিন্তু গলিত NaCl করে—সঠিক কারণ কোনটি?",en:"Solid NaCl normally does not conduct electricity, but molten NaCl does. Why?"},
+        options:[
+          {bn:"কঠিনে electron নেই",en:"The solid contains no electrons"},
+          {bn:"কঠিনে ion আবদ্ধ; গলিত অবস্থায় ion চলনশীল",en:"Ions are fixed in the solid but mobile when molten"},
+          {bn:"গললে NaCl covalent হয়",en:"NaCl becomes covalent on melting"},
+          {bn:"গলিত NaCl-এ কেবল proton চলে",en:"Only protons move in molten NaCl"}
+        ],correct:1,
+        why:{bn:"Charge carrier হলো ion। Solid lattice-এ ion স্থির, melt-এ চলতে পারে।",en:"The charge carriers are ions: fixed in the solid lattice, mobile in the melt."}
+      },
+      {
+        topic:"bonding",type:{bn:"সংখ্যা নির্বাচন",en:"Select"},
+        q:{bn:"N₂-এর Lewis structure-এ দুটি N atom-এর মধ্যে কতটি shared electron pair?",en:"How many shared electron pairs lie between the N atoms in N₂?"},
+        options:[{bn:"1",en:"1"},{bn:"2",en:"2"},{bn:"3",en:"3"},{bn:"4",en:"4"}],correct:2,
+        why:{bn:"N≡N triple bond-এ তিনটি shared pair থাকে; প্রতিটি N-এ একটি lone pair।",en:"The N≡N triple bond contains three shared pairs; each N also has one lone pair."}
+      },
+      {
+        topic:"bonding",type:{bn:"সত্য/মিথ্যা",en:"True/False"},
+        q:{bn:"“Ionic” ও “covalent” bond বাস্তবে সম্পূর্ণ বিচ্ছিন্ন দুই শ্রেণি; মাঝামাঝি character নেই।",en:"Ionic and covalent bonds are perfectly separate categories with no intermediate character."},
+        options:[{bn:"সত্য",en:"True"},{bn:"মিথ্যা",en:"False"},{bn:"শুধু gas-এ সত্য",en:"True only in gases"},{bn:"শুধু metal-এ সত্য",en:"True only in metals"}],correct:1,
+        why:{bn:"Bonding একটি continuum; electronegativity difference ও polarisation অনুযায়ী ionic/covalent character বদলায়।",en:"Bonding is a continuum; ionic/covalent character varies with electronegativity difference and polarisation."}
+      },
+      {
+        topic:"bonding",type:{bn:"চিত্রধারণা",en:"Visual identification"},
+        q:{bn:"H—Cl bond-এর partial charge সঠিকভাবে কোনটি?",en:"Which partial-charge assignment is correct for H—Cl?"},
+        options:[{bn:"Hδ⁻—Clδ⁺",en:"Hδ⁻—Clδ⁺"},{bn:"Hδ⁺—Clδ⁻",en:"Hδ⁺—Clδ⁻"},{bn:"H⁺—Cl⁻ সম্পূর্ণ ion",en:"Fully ionic H⁺—Cl⁻"},{bn:"কোনো electron density নেই",en:"No electron density in the bond"}],correct:1,
+        why:{bn:"Cl বেশি electronegative, তাই electron density Cl-এর দিকে এবং Cl প্রান্ত δ⁻।",en:"Cl is more electronegative, so electron density shifts toward it and the Cl end is δ⁻."}
+      },
+      {
+        topic:"periodic",type:{bn:"MCQ",en:"MCQ"},
+        q:{bn:"একই period-এ বাম থেকে ডানে atomic radius-এর সাধারণ পরিবর্তন কী?",en:"What is the general change in atomic radius from left to right across a period?"},
+        options:[{bn:"বাড়ে",en:"Increases"},{bn:"কমে",en:"Decreases"},{bn:"অপরিবর্তিত",en:"Stays constant"},{bn:"প্রথমে শূন্য হয়",en:"First becomes zero"}],correct:1,
+        why:{bn:"Nuclear charge বাড়লেও shell একই থাকে; effective attraction বাড়ায় radius সাধারণত কমে।",en:"Nuclear charge rises within the same shell, increasing effective attraction and generally reducing radius."}
+      },
+      {
+        topic:"periodic",type:{bn:"তুলনা",en:"Compare"},
+        q:{bn:"Na, Mg, Cl ও F-এর মধ্যে electronegativity সর্বাধিক কোনটির?",en:"Which is most electronegative among Na, Mg, Cl and F?"},
+        options:[{bn:"Na",en:"Na"},{bn:"Mg",en:"Mg"},{bn:"Cl",en:"Cl"},{bn:"F",en:"F"}],correct:3,
+        why:{bn:"Electronegativity period-এ ডানে ও group-এ উপরে বাড়ে; F সর্বাধিক।",en:"Electronegativity increases across a period and up a group; F is the highest."}
+      },
+      {
+        topic:"quantum",type:{bn:"Match/select",en:"Match/select"},
+        q:{bn:"n = 3 হলে অনুমোদিত l মানের সম্পূর্ণ set কোনটি?",en:"For n = 3, which is the complete allowed set of l values?"},
+        options:[{bn:"0, 1, 2",en:"0, 1, 2"},{bn:"1, 2, 3",en:"1, 2, 3"},{bn:"−2 থেকে +2",en:"−2 to +2"},{bn:"কেবল 3",en:"3 only"}],correct:0,
+        why:{bn:"l-এর মান 0 থেকে n−1; তাই n=3 হলে l=0,1,2।",en:"l runs from 0 to n−1; therefore n=3 allows l=0,1,2."}
+      },
+      {
+        topic:"quantum",type:{bn:"MCQ",en:"MCQ"},
+        q:{bn:"l = 2 subshell-এর জন্য mₗ-এর অনুমোদিত range কোনটি?",en:"What is the allowed range of mₗ for l = 2?"},
+        options:[{bn:"0 থেকে 2",en:"0 to 2"},{bn:"−2 থেকে +2",en:"−2 to +2"},{bn:"−3 থেকে +3",en:"−3 to +3"},{bn:"শুধু ±½",en:"Only ±½"}],correct:1,
+        why:{bn:"mₗ পূর্ণসংখ্যায় −l থেকে +l: −2,−1,0,+1,+2।",en:"mₗ takes integer values from −l to +l: −2,−1,0,+1,+2."}
+      },
+      {
+        topic:"quantum",type:{bn:"সত্য সেট নির্বাচন",en:"Valid-set selection"},
+        q:{bn:"Electron spin quantum number mₛ-এর একমাত্র অনুমোদিত মান কোন জোড়া?",en:"Which pair contains the only allowed electron spin quantum numbers mₛ?"},
+        options:[{bn:"0, 1",en:"0, 1"},{bn:"−1, +1",en:"−1, +1"},{bn:"+½, −½",en:"+½, −½"},{bn:"+3/2, −3/2",en:"+3/2, −3/2"}],correct:2,
+        why:{bn:"Electron-এর spin projection কেবল +½ অথবা −½।",en:"An electron’s spin projection can only be +½ or −½."}
+      },
+      {
+        topic:"orbitals",type:{bn:"দৃশ্য শনাক্তকরণ",en:"Visual identification"},
+        visual:"s",
+        q:{bn:"নীচে দেখানো গোলীয় boundary surface কোন orbital-এর?",en:"Which orbital has the spherical boundary surface shown below?"},
+        options:[{bn:"s",en:"s"},{bn:"p",en:"p"},{bn:"dxy",en:"dxy"},{bn:"dx²−y²",en:"dx²−y²"}],correct:0,
+        why:{bn:"সব s orbital গোলীয় symmetric; p dumbbell এবং অধিকাংশ d চার-lobed।",en:"All s orbitals are spherically symmetric; p orbitals are dumbbell-shaped and most d orbitals are four-lobed."}
+      },
+      {
+        topic:"orbitals",type:{bn:"সত্য/মিথ্যা",en:"True/False"},
+        q:{bn:"Orbital diagram-এর দুই রং দুই বিপরীত বৈদ্যুতিক আধান বোঝায়।",en:"The two colours in an orbital diagram represent opposite electric charges."},
+        options:[{bn:"সত্য",en:"True"},{bn:"মিথ্যা—এগুলি বিপরীত phase",en:"False—they show opposite phases"},{bn:"শুধু d orbital-এ সত্য",en:"True only for d orbitals"},{bn:"রং electron-এর speed বোঝায়",en:"Colours show electron speed"}],correct:1,
+        why:{bn:"রং wave function ψ-এর sign/phase বোঝায়; electron charge সর্বত্র একই ঋণাত্মক।",en:"Colours encode the sign/phase of ψ; the electron’s charge is negative everywhere."}
+      },
+      {
+        topic:"drago",type:{bn:"কারণ নির্বাচন",en:"Reasoning"},
+        q:{bn:"PH₃-এর H—P—H angle প্রায় 93.5°, 109.5° নয়—Drago’s Rule অনুযায়ী সেরা ব্যাখ্যা কোনটি?",en:"PH₃ has an H—P—H angle near 93.5°, not 109.5°. What is the best Drago-rule explanation?"},
+        options:[
+          {bn:"P সম্পূর্ণ sp hybridised",en:"P is perfectly sp hybridised"},
+          {bn:"প্রায় unhybridised 3p orbital bonding কোণকে 90°-এর কাছে রাখে",en:"Nearly unhybridised 3p bonding keeps the angle near 90°"},
+          {bn:"PH₃ ionic lattice গঠন করে",en:"PH₃ forms an ionic lattice"},
+          {bn:"H atom-এ d orbital আছে",en:"H atoms use d orbitals"}
+        ],correct:1,
+        why:{bn:"Period-3 P-তে দুর্বল s–p mixing ও প্রায় pure p bonding 90°-কাছাকাছি angle-এর qualitative ব্যাখ্যা দেয়।",en:"Weak s–p mixing and nearly pure-p bonding on period-3 P qualitatively explain the near-90° angle."}
+      },
+      {
+        topic:"geometry",type:{bn:"জ্যামিতি অনুমান",en:"Geometry prediction"},
+        q:{bn:"NH₃-তে central N-এর steric number ও molecular shape কোনটি?",en:"What are the steric number and molecular shape of NH₃?"},
+        options:[
+          {bn:"SN 3, trigonal planar",en:"SN 3, trigonal planar"},
+          {bn:"SN 4, tetrahedral",en:"SN 4, tetrahedral"},
+          {bn:"SN 4, trigonal pyramidal",en:"SN 4, trigonal pyramidal"},
+          {bn:"SN 5, seesaw",en:"SN 5, seesaw"}
+        ],correct:2,
+        why:{bn:"3 σ bond + 1 lone pair = SN 4; electron geometry tetrahedral, molecular shape trigonal pyramidal।",en:"3 σ bonds + 1 lone pair = SN 4; electron geometry is tetrahedral, molecular shape trigonal pyramidal."}
+      },
+      {
+        topic:"geometry",type:{bn:"জ্যামিতি অনুমান",en:"Geometry prediction"},
+        q:{bn:"SF₄-এ SN 5 এবং একটি lone pair থাকলে molecular shape কী?",en:"For SF₄, SN 5 with one lone pair gives which molecular shape?"},
+        options:[{bn:"Seesaw",en:"Seesaw"},{bn:"T-shaped",en:"T-shaped"},{bn:"Square planar",en:"Square planar"},{bn:"Linear",en:"Linear"}],correct:0,
+        why:{bn:"Trigonal-bipyramidal electron geometry-তে একটি equatorial lone pair বাদ দিলে seesaw shape থাকে।",en:"Removing one equatorial lone-pair position from trigonal-bipyramidal electron geometry leaves a seesaw shape."}
+      },
+      {
+        topic:"geometry",type:{bn:"জ্যামিতি অনুমান",en:"Geometry prediction"},
+        q:{bn:"XeF₄-এ 4 σ bond ও 2 lone pair। Electron geometry ও molecular shape যথাক্রমে কী?",en:"XeF₄ has 4 σ bonds and 2 lone pairs. What are its electron geometry and molecular shape?"},
+        options:[
+          {bn:"Tetrahedral, bent",en:"Tetrahedral, bent"},
+          {bn:"Octahedral, square planar",en:"Octahedral, square planar"},
+          {bn:"Square planar, octahedral",en:"Square planar, octahedral"},
+          {bn:"Trigonal bipyramidal, linear",en:"Trigonal bipyramidal, linear"}
+        ],correct:1,
+        why:{bn:"SN 6 ⇒ octahedral electron geometry; বিপরীত দুই lone-pair site বাদ দিলে চার F square plane-এ থাকে।",en:"SN 6 gives octahedral electron geometry; removing two opposite lone-pair sites leaves four F atoms in a square plane."}
+      }
+    ];
+    var topicNames={
+      bonding:{bn:"আয়নিক ও সমযোজী",en:"Ionic & covalent"},
+      periodic:{bn:"পর্যায়বৃত্তীয় প্রবণতা",en:"Periodic trends"},
+      quantum:{bn:"কোয়ান্টাম সংখ্যা",en:"Quantum numbers"},
+      orbitals:{bn:"অরবিটাল আকৃতি",en:"Orbital shapes"},
+      drago:{bn:"Drago’s Rule",en:"Drago’s Rule"},
+      geometry:{bn:"Steric number ও geometry",en:"Steric number & geometry"}
+    };
+
+    function renderQuiz(){
+      state.quizFinished=false;
+      var q=quizQuestions[state.quizIndex],answer=state.quizAnswers[state.quizIndex];
+      document.getElementById("quizProgress").style.width=((state.quizIndex+(answer!==null?1:0))/quizQuestions.length*100)+"%";
+      var content=document.getElementById("quizContent");
+      var html="<div class='quiz-kicker'><span>"+localText(q.type)+" • "+localText(topicNames[q.topic])+"</span><span>"+
+        (state.lang==="bn"?"প্রশ্ন ":"Question ")+(state.quizIndex+1)+" / 15</span></div>"+
+        "<h3 class='quiz-question'>"+localText(q.q)+"</h3>"+
+        (q.visual==="s"?"<div class='orbital-glyph mini-card' aria-label='Spherical orbital visual'><span class='glyph-s'></span></div>":"")+
+        "<div class='option-grid'>";
+      q.options.forEach(function(option,index){
+        var classes="option";
+        if(answer!==null){
+          if(index===answer)classes+=" selected";
+          if(index===q.correct)classes+=" correct";
+          else if(index===answer)classes+=" incorrect";
+        }
+        html+="<button type='button' class='"+classes+"' data-answer='"+index+"' data-letter='"+String.fromCharCode(65+index)+"'>"+localText(option)+"</button>";
+      });
+      html+="</div>";
+      if(answer!==null){
+        var correct=answer===q.correct;
+        html+="<div class='feedback show' aria-live='polite'><strong style='color:"+(correct?"var(--green)":"var(--danger)")+"'>"+
+          (correct?(state.lang==="bn"?"✓ সঠিক":"✓ Correct"):(state.lang==="bn"?"✕ এখনো সঠিক নয়":"✕ Not correct yet"))+
+          "</strong><p class='fine' style='margin:6px 0 0'>"+localText(q.why)+"</p></div>";
+      }
+      html+="<div class='quiz-actions'><button class='btn' type='button' id='quizPrev' "+(state.quizIndex===0?"disabled":"")+">"+
+        (state.lang==="bn"?"← আগের প্রশ্ন":"← Previous")+"</button><span class='fine'>"+
+        (state.lang==="bn"?"উত্তর বদলাতে অন্য option চাপো":"Select another option to change your answer")+
+        "</span><button class='btn primary' type='button' id='quizNext' "+(answer===null?"disabled":"")+">"+
+        (state.quizIndex===14?(state.lang==="bn"?"ফলাফল দেখো":"View Results"):(state.lang==="bn"?"পরবর্তী প্রশ্ন →":"Next Question →"))+"</button></div>";
+      content.innerHTML=html;
+      content.querySelectorAll("[data-answer]").forEach(function(button){
+        button.addEventListener("click",function(){
+          state.quizAnswers[state.quizIndex]=Number(button.getAttribute("data-answer"));
+          renderQuiz();
+        });
+      });
+      document.getElementById("quizPrev").addEventListener("click",function(){if(state.quizIndex>0){state.quizIndex--;renderQuiz();}});
+      document.getElementById("quizNext").addEventListener("click",function(){
+        if(state.quizAnswers[state.quizIndex]===null)return;
+        if(state.quizIndex===14){state.quizFinished=true;renderResults();}
+        else{state.quizIndex++;renderQuiz();}
+      });
+    }
+
+    function scoreMessage(score){
+      if(score>=13)return{bn:"অসাধারণ",en:"Excellent"};
+      if(score>=10)return{bn:"খুব ভালো",en:"Very Good"};
+      if(score>=7)return{bn:"ভালো চেষ্টা",en:"Good Attempt"};
+      return{bn:"পুনরাবৃত্তি করে আবার চেষ্টা করো",en:"Revise and Try Again"};
+    }
+    function renderResults(){
+      state.quizFinished=true;
+      var score=state.quizAnswers.reduce(function(total,answer,index){return total+(answer===quizQuestions[index].correct?1:0);},0);
+      var pct=Math.round(score/15*100);
+      if(score>state.bestScore){state.bestScore=score;saveState();}
+      document.getElementById("quizProgress").style.width="100%";
+      var grouped={};
+      Object.keys(topicNames).forEach(function(key){grouped[key]={correct:0,total:0};});
+      quizQuestions.forEach(function(q,index){grouped[q.topic].total++;if(state.quizAnswers[index]===q.correct)grouped[q.topic].correct++;});
+      var html="<div class='score-hero'><div class='score-ring' style='--score-pct:"+pct+"%'><span>"+score+"/15</span></div><h3 style='font-size:2rem;margin-bottom:5px'>"+localText(scoreMessage(score))+"</h3><p class='muted'>"+
+        pct+"% • "+(state.lang==="bn"?"সঠিক "+score+" • ভুল "+(15-score)+" • সেরা "+state.bestScore+"/15":"Correct "+score+" • Incorrect "+(15-score)+" • Best "+state.bestScore+"/15")+"</p></div>";
+      html+="<h3>"+(state.lang==="bn"?"বিষয়ভিত্তিক ফল":"Topic-wise performance")+"</h3><div class='topic-bars'>";
+      Object.keys(grouped).forEach(function(key){
+        var item=grouped[key],barPct=Math.round(item.correct/item.total*100);
+        html+="<div class='topic-row'><span>"+localText(topicNames[key])+"</span><span class='bar'><i style='width:"+barPct+"%'></i></span><b>"+item.correct+"/"+item.total+"</b></div>";
+      });
+      html+="</div>";
+      var wrong=quizQuestions.map(function(q,index){return{q:q,index:index};}).filter(function(item){return state.quizAnswers[item.index]!==item.q.correct;});
+      if(wrong.length){
+        html+="<h3>"+(state.lang==="bn"?"ভুল প্রশ্নের review":"Review incorrect answers")+"</h3><div class='review-list'>";
+        wrong.forEach(function(item){
+          var chosen=state.quizAnswers[item.index];
+          html+="<div class='review-item'><b>"+(item.index+1)+". "+localText(item.q.q)+"</b><p class='fine' style='margin:6px 0 0'>"+
+            (state.lang==="bn"?"তোমার উত্তর: ":"Your answer: ")+(chosen===null?"—":localText(item.q.options[chosen]))+"<br>"+
+            (state.lang==="bn"?"সঠিক উত্তর: ":"Correct answer: ")+localText(item.q.options[item.q.correct])+"<br>"+localText(item.q.why)+"</p></div>";
+        });
+        html+="</div>";
+      }else{
+        html+="<div class='mini-card' style='border-color:var(--green)'>"+(state.lang==="bn"?"সব উত্তর সঠিক—দারুণ mastery!":"Every answer is correct—excellent mastery!")+"</div>";
+      }
+      html+="<div class='button-row' style='justify-content:center;margin-top:24px'><button class='btn primary' id='restartQuiz' type='button'>"+
+        (state.lang==="bn"?"↻ কুইজ আবার দাও":"↻ Restart Quiz")+"</button><a class='btn' href='#revision'>"+(state.lang==="bn"?"দ্রুত রিভিশন":"Quick Revision")+"</a></div>";
+      document.getElementById("quizContent").innerHTML=html;
+      document.getElementById("restartQuiz").addEventListener("click",function(){
+        state.quizAnswers=Array(15).fill(null);state.quizIndex=0;state.quizFinished=false;renderQuiz();
+      });
+    }
+
+    /* ---------- Glossary, navigation spy and keyboard shortcuts ---------- */
+    var glossary={
+      phase:{title:{bn:"Wave-function phase",en:"Wave-function phase"},body:{bn:"ψ-এর ধনাত্মক/ঋণাত্মক sign; orbital overlap-এ constructive বা destructive combination বোঝাতে গুরুত্বপূর্ণ। এটি electric charge নয়।",en:"The positive/negative sign of ψ, important for constructive or destructive orbital combinations. It is not electric charge."}},
+      electrovalency:{title:{bn:"Electrovalency",en:"Electrovalency"},body:{bn:"Ionic bond গঠনে কোনো atom যত electron হারায় বা গ্রহণ করে তার সংখ্যা।",en:"The number of electrons an atom loses or gains when forming an ionic bond."}},
+      domain:{title:{bn:"Electron domain",en:"Electron domain"},body:{bn:"Central atom-এর চারপাশে একটি bond (single/double/triple যাই হোক) অথবা একটি lone pair-এর electron-density অঞ্চল।",en:"A region of electron density around a central atom: one bond of any order, or one lone pair."}}
+    };
+    var glossaryPop=document.getElementById("glossaryPop");
+    function openGlossary(target){
+      var data=glossary[target.getAttribute("data-term")];if(!data)return;
+      glossaryPop.innerHTML="<b>"+localText(data.title)+"</b><span>"+localText(data.body)+"</span>";
+      glossaryPop.hidden=false;
+      var rect=target.getBoundingClientRect(),width=Math.min(320,window.innerWidth-28);
+      var left=Math.min(window.innerWidth-width-14,Math.max(14,rect.left));
+      var top=rect.bottom+9;
+      if(top+150>window.innerHeight)top=Math.max(14,rect.top-145);
+      glossaryPop.style.left=left+"px";glossaryPop.style.top=top+"px";
+    }
+    document.addEventListener("click",function(event){
+      var term=event.target.closest("[data-term]");
+      if(term){event.stopPropagation();openGlossary(term);}
+      else if(!event.target.closest("#glossaryPop"))glossaryPop.hidden=true;
+    });
+    document.addEventListener("mouseover",function(event){var term=event.target.closest("[data-term]");if(term)openGlossary(term);});
+    document.addEventListener("keydown",function(event){
+      var tag=document.activeElement&&document.activeElement.tagName;
+      var typing=tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA";
+      if(event.key==="Escape"){glossaryPop.hidden=true;mainNav.classList.remove("open");}
+      if(typing)return;
+      if(event.key.toLowerCase()==="b")setLanguage("bn",true);
+      if(event.key.toLowerCase()==="e")setLanguage("en",true);
+      if(event.key.toLowerCase()==="q")document.getElementById("quiz").scrollIntoView();
+      if(event.key==="ArrowLeft"&&!state.quizFinished&&state.quizIndex>0){state.quizIndex--;renderQuiz();}
+      if(event.key==="ArrowRight"&&!state.quizFinished&&state.quizAnswers[state.quizIndex]!==null){
+        if(state.quizIndex===14){state.quizFinished=true;renderResults();}else{state.quizIndex++;renderQuiz();}
+      }
+    });
+
+    if("IntersectionObserver" in window){
+      var sections=Array.from(document.querySelectorAll("main section[id]"));
+      var spy=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            mainNav.querySelectorAll("a").forEach(function(link){link.classList.toggle("active",link.getAttribute("href")==="#"+entry.target.id);});
+          }
+        });
+      },{rootMargin:"-35% 0px -58% 0px",threshold:0});
+      sections.forEach(function(section){spy.observe(section);});
+    }
+
+    window.addEventListener("resize",function(){
+      drawOrbital();drawDrago();drawGeometry();
+    });
+
+    /* ---------- Initialise every interactive system ---------- */
+    buildLValues();
+    setLanguage(state.lang, false);
+    renderIonic();
+    renderIonicTry();
+    renderMolecule();
+    renderDrago();
+    renderGeometry();
+    updateCalculator();
+    renderQuiz();
+    requestAnimationFrame(drawBondScene);
+  }());
+  </script>
+</body>
+</html>
