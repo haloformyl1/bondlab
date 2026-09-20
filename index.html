@@ -65,6 +65,9 @@
     ::selection { color: #03101c; background: var(--cyan); }
 
     .skip-link {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
       position: fixed;
       top: 8px;
       left: 8px;
@@ -125,6 +128,12 @@
       text-decoration: none;
       white-space: nowrap;
       user-select: none;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
     }
     .piechem-icon-wrap {
       position: relative;
@@ -221,6 +230,7 @@
       color: rgba(6, 182, 212, 0.6);
     }
     .credit-phone {
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -252,15 +262,21 @@
       align-items: center;
       gap: 4px;
     }
-    .main-nav a {
+    .main-nav a, .main-nav button {
       padding: 9px 10px;
       color: var(--muted);
       border-radius: 10px;
       text-decoration: none;
       font-size: .84rem;
       transition: color .2s, background .2s;
+          border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      line-height: inherit;
     }
-    .main-nav a:hover, .main-nav a.active { color: var(--text); background: rgba(70,227,255,.09); }
+    .main-nav a:hover, .main-nav a.active, .main-nav button:hover, .main-nav button.active { color: var(--text); background: rgba(70,227,255,.09); }
     .lang-toggle {
       display: inline-flex;
       flex: 0 0 auto;
@@ -1040,6 +1056,11 @@
     .footer-phone-link {
       color: inherit;
       text-decoration: none;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
       transition: color 0.2s;
     }
     .footer-phone-link:hover {
@@ -1168,12 +1189,12 @@
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#main" data-bn="মূল বিষয়বস্তুতে যাও" data-en="Skip to main content">মূল বিষয়বস্তুতে যাও</a>
+  <button type="button" class="skip-link" data-target="main" data-bn="মূল বিষয়বস্তুতে যাও" data-en="Skip to main content">মূল বিষয়বস্তুতে যাও</button>
 
   <header class="site-header">
     <div class="nav-shell">
       <div class="brand-block">
-        <a class="brand" href="#home" aria-label="PIECHEM BondLab home">
+        <button type="button" class="brand" data-target="home" aria-label="PIECHEM BondLab home">
           <div class="piechem-icon-wrap">
             <div class="piechem-icon-glow"></div>
             <svg class="piechem-icon-svg" width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1222,7 +1243,7 @@
           <span class="credit-label" data-bn="Designed by" data-en="Designed by">Designed by</span>
           <span class="credit-name">Arghyadeep Roy</span>
           <span class="credit-dot">•</span>
-          <a href="tel:9830507435" class="credit-phone" title="Call Arghyadeep Roy">
+          <button type="button" class="credit-phone" onclick="window.open('tel:9830507435', '_self')" title="Call Arghyadeep Roy">
             <svg class="phone-svg" viewBox="0 0 24 24" width="10" height="10" aria-hidden="true">
               <path fill="currentColor" d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
             </svg>
@@ -1231,15 +1252,15 @@
         </div>
       </div>
       <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
-        <a href="#trends" data-bn="প্রবণতা" data-en="Trends">প্রবণতা</a>
-        <a href="#ionic" data-bn="আয়নিক" data-en="Ionic">আয়নিক</a>
-        <a href="#covalent" data-bn="সমযোজী" data-en="Covalent">সমযোজী</a>
-        <a href="#quantum" data-bn="কোয়ান্টাম" data-en="Quantum">কোয়ান্টাম</a>
-        <a href="#orbitals" data-bn="অরবিটাল" data-en="Orbitals">অরবিটাল</a>
-        <a href="#drago" data-bn="ড্রাগোর সূত্র" data-en="Drago’s Rule">ড্রাগোর সূত্র</a>
-        <a href="#geometry" data-bn="জ্যামিতি" data-en="Geometry">জ্যামিতি</a>
-        <a href="#revision" data-bn="রিভিশন" data-en="Revision">রিভিশন</a>
-        <a href="#quiz" data-bn="কুইজ" data-en="Quiz">কুইজ</a>
+        <button type="button" data-target="trends" data-bn="প্রবণতা" data-en="Trends">প্রবণতা</button>
+        <button type="button" data-target="ionic" data-bn="আয়নিক" data-en="Ionic">আয়নিক</button>
+        <button type="button" data-target="covalent" data-bn="সমযোজী" data-en="Covalent">সমযোজী</button>
+        <button type="button" data-target="quantum" data-bn="কোয়ান্টাম" data-en="Quantum">কোয়ান্টাম</button>
+        <button type="button" data-target="orbitals" data-bn="অরবিটাল" data-en="Orbitals">অরবিটাল</button>
+        <button type="button" data-target="drago" data-bn="ড্রাগোর সূত্র" data-en="Drago’s Rule">ড্রাগোর সূত্র</button>
+        <button type="button" data-target="geometry" data-bn="জ্যামিতি" data-en="Geometry">জ্যামিতি</button>
+        <button type="button" data-target="revision" data-bn="রিভিশন" data-en="Revision">রিভিশন</button>
+        <button type="button" data-target="quiz" data-bn="কুইজ" data-en="Quiz">কুইজ</button>
       </nav>
       <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mainNav" data-aria-bn="মেনু খোলো" data-aria-en="Open menu">
         <span></span><span></span><span></span>
@@ -1258,8 +1279,8 @@
         <h1><span>BondLab</span><span data-bn="বন্ধনশালা" data-en="Bonding, visualised">বন্ধনশালা</span></h1>
         <p class="lead" data-bn="পরমাণুর প্রবণতা থেকে অরবিটালের আকৃতি—রাসায়নিক বন্ধনের প্রতিটি ধারণা দেখো, বদলাও এবং নিজে যাচাই করো।" data-en="From atomic trends to orbital shapes—see, manipulate and test every core idea behind chemical bonding.">পরমাণুর প্রবণতা থেকে অরবিটালের আকৃতি—রাসায়নিক বন্ধনের প্রতিটি ধারণা দেখো, বদলাও এবং নিজে যাচাই করো।</p>
         <div class="button-row">
-          <a class="btn primary" href="#trends"><span aria-hidden="true">⚗</span><span data-bn="শেখা শুরু করো" data-en="Start Learning">শেখা শুরু করো</span></a>
-          <a class="btn secondary" href="#quiz"><span aria-hidden="true">✓</span><span data-bn="কুইজ দাও" data-en="Take Quiz">কুইজ দাও</span></a>
+          <button type="button" class="btn primary" data-target="trends"><span aria-hidden="true">⚗</span><span data-bn="শেখা শুরু করো" data-en="Start Learning">শেখা শুরু করো</span></button>
+          <button type="button" class="btn secondary" data-target="quiz"><span aria-hidden="true">✓</span><span data-bn="কুইজ দাও" data-en="Take Quiz">কুইজ দাও</span></button>
         </div>
         <div class="hero-meta">
           <div><b>8</b><small data-bn="ইন্টারঅ্যাক্টিভ অধ্যায়" data-en="interactive chapters">ইন্টারঅ্যাক্টিভ অধ্যায়</small></div>
@@ -1696,7 +1717,7 @@
       </div>
       <div class="footer-right">
         <p class="footer-author">Designed &amp; Prepared By- Arghyadeep Roy</p>
-        <p class="footer-contact">Contact- <a href="tel:9830507435" class="footer-phone-link">9830507435</a></p>
+        <p class="footer-contact">Contact- <button type="button" class="footer-phone-link" onclick="window.open('tel:9830507435', '_self')">9830507435</button></p>
       </div>
     </div>
   </footer>
@@ -1813,7 +1834,7 @@
       }
     });
     mainNav.addEventListener("click", function (event) {
-      if (event.target.closest("a")) {
+      if (event.target.closest("a, button, [data-target]")) {
         closeMenu();
       }
     });
@@ -2959,7 +2980,7 @@
         html+="<div class='mini-card' style='border-color:var(--green)'>"+(state.lang==="bn"?"সব উত্তর সঠিক—দারুণ mastery!":"Every answer is correct—excellent mastery!")+"</div>";
       }
       html+="<div class='button-row' style='justify-content:center;margin-top:24px'><button class='btn primary' id='restartQuiz' type='button'>"+
-        (state.lang==="bn"?"↻ কুইজ আবার দাও":"↻ Restart Quiz")+"</button><a class='btn' href='#revision'>"+(state.lang==="bn"?"দ্রুত রিভিশন":"Quick Revision")+"</a></div>";
+        (state.lang==="bn"?"↻ কুইজ আবার দাও":"↻ Restart Quiz")+"</button><button type='button' class='btn' data-target='revision'>"+(state.lang==="bn"?"দ্রুত রিভিশন":"Quick Revision")+"</button></div>";
       document.getElementById("quizContent").innerHTML=html;
       document.getElementById("restartQuiz").addEventListener("click",function(){
         state.quizAnswers=Array(15).fill(null);state.quizIndex=0;state.quizFinished=false;renderQuiz();
@@ -3008,7 +3029,7 @@
       var spy=new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           if(entry.isIntersecting){
-            mainNav.querySelectorAll("a").forEach(function(link){link.classList.toggle("active",link.getAttribute("href")==="#"+entry.target.id);});
+            mainNav.querySelectorAll("[data-target]").forEach(function(btn){btn.classList.toggle("active",btn.getAttribute("data-target")===entry.target.id);});
           }
         });
       },{rootMargin:"-35% 0px -58% 0px",threshold:0});
@@ -3017,6 +3038,28 @@
 
     window.addEventListener("resize",function(){
       drawOrbital();drawDrago();drawGeometry();
+    });
+
+
+    // Smooth navigation without exposing links on hover
+    document.addEventListener("click", function (event) {
+      var btn = event.target.closest("[data-target]");
+      if (btn) {
+        var targetId = btn.getAttribute("data-target").replace(/^#/, "");
+        var targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          event.preventDefault();
+          targetEl.scrollIntoView({ behavior: "smooth" });
+          if (mainNav) {
+            mainNav.classList.remove("open");
+            document.body.classList.remove("nav-open");
+            if (menuToggle) {
+              menuToggle.setAttribute("aria-expanded", "false");
+              menuToggle.setAttribute("aria-label", state.lang === "bn" ? "মেনু খোলো" : "Open menu");
+            }
+          }
+        }
+      }
     });
 
     /* ---------- Initialise every interactive system ---------- */
