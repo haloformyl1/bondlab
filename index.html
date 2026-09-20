@@ -21,7 +21,9 @@
       --amber: #ffc75a;
       --danger: #ff7c8c;
       --shadow: 0 20px 60px rgba(0, 0, 0, .28);
-      --radius: 22px;
+      --shadow-soft: 0 10px 24px rgba(0, 0, 0, .18);
+      --radius: 18px;
+      --radius-sm: 10px;
       --header-h: 78px;
       color-scheme: dark;
     }
@@ -306,9 +308,10 @@
     }
     .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
     h1, h2, h3, h4, p { margin-top: 0; }
-    h1 { margin-bottom: 18px; font-size: clamp(2.7rem, 7vw, 6.3rem); line-height: .98; letter-spacing: -.065em; }
-    h2 { margin-bottom: 12px; font-size: clamp(2rem, 4.5vw, 3.7rem); line-height: 1.08; letter-spacing: -.045em; }
-    h3 { line-height: 1.25; letter-spacing: -.02em; }
+    h1, h2, h3, h4 { font-family: Georgia, "Noto Serif Bengali", serif; text-wrap: balance; }
+    h1 { margin-bottom: 18px; font-size: clamp(2.7rem, 7vw, 6.3rem); line-height: .98; }
+    h2 { margin-bottom: 12px; font-size: clamp(2rem, 4.5vw, 3.7rem); line-height: 1.08; }
+    h3 { line-height: 1.25; }
     .lead { max-width: 720px; color: #c9d9e7; font-size: clamp(1.02rem, 2vw, 1.22rem); }
     .muted { color: var(--muted); }
     .fine { color: var(--muted); font-size: .86rem; }
@@ -317,11 +320,22 @@
     .violet { color: var(--violet); }
 
     .panel {
+      position: relative;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: linear-gradient(145deg, rgba(18, 42, 72, .78), rgba(8, 22, 40, .74));
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
+    }
+    .panel::before {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 2px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--green));
+      content: "";
+      opacity: .65;
+      pointer-events: none;
     }
     .padded { padding: clamp(18px, 3vw, 30px); }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
@@ -332,7 +346,8 @@
       padding: 18px;
       border: 1px solid var(--line);
       border-radius: 16px;
-      background: rgba(255,255,255,.035);
+      background: rgba(255,255,255,.045);
+      box-shadow: var(--shadow-soft);
     }
     .mini-card h3, .mini-card h4 { margin-bottom: 6px; }
 
@@ -351,7 +366,7 @@
       font-weight: 800;
       transition: transform .2s, background .2s, border .2s;
     }
-    .btn:hover { transform: translateY(-2px); background: rgba(70,227,255,.15); }
+    .btn:hover { transform: translateY(-2px); background: rgba(70,227,255,.15); box-shadow: 0 10px 24px rgba(0,0,0,.2); }
     .btn.primary { color: #04111c; border-color: var(--cyan); background: var(--cyan); }
     .btn.secondary { border-color: rgba(170,123,255,.46); background: rgba(170,123,255,.12); }
     .btn.danger { border-color: rgba(255,124,140,.42); background: rgba(255,124,140,.1); }
@@ -671,11 +686,35 @@
       position: relative;
       min-height: 360px;
       overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       background:
         radial-gradient(circle at 50% 45%, rgba(70,227,255,.08), transparent 35%),
         rgba(5,15,28,.55);
     }
     canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    .visual-stage::before {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      content: "";
+      opacity: .7;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .molecule3d-layout { display: grid; grid-template-columns: .72fr 1.28fr; gap: 20px; }
+    .molecule3d-stage { position: relative; min-height: 430px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: radial-gradient(circle at 50% 46%, rgba(70,227,255,.13), transparent 38%), #050f1c; }
+    #molecule3dCanvas { display: block; width: 100%; height: 430px; touch-action: none; cursor: grab; }
+    #molecule3dCanvas:active { cursor: grabbing; }
+    .molecule3d-hud { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
+    .molecule3d-hud .tag { background: rgba(4, 13, 24, .72); backdrop-filter: blur(8px); }
+    .molecule3d-caption { position: absolute; left: 14px; right: 14px; bottom: 12px; margin: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: rgba(4,13,24,.74); color: var(--muted); font-size: .78rem; pointer-events: none; }
+    .molecule3d-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; color: var(--muted); font-size: .8rem; }
+    .molecule3d-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .molecule3d-legend i { width: 12px; height: 12px; border-radius: 50%; background: var(--cyan); }
+    .molecule3d-legend i.bond { width: 18px; height: 4px; border-radius: 4px; background: #dbeafe; }
+    .molecule3d-legend i.lone { background: var(--amber); }
     #bondCanvas { min-height: 360px; }
     .canvas-label {
       position: absolute;
@@ -843,7 +882,7 @@
     .shape-readout small { display: block; color: var(--muted); }
     .shape-readout b { color: var(--cyan); }
 
-    .quiz-shell { max-width: 900px; margin: auto; overflow: hidden; }
+    .quiz-shell { max-width: 900px; margin: auto; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,.3); }
     .quiz-top { padding: 22px 24px 0; }
     .quiz-progress { height: 10px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.08); }
     .quiz-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--violet)); transition: width .35s; }
@@ -862,7 +901,7 @@
       text-align: left;
       transition: border .2s, background .2s, transform .2s;
     }
-    .option:hover { transform: translateY(-2px); border-color: rgba(70,227,255,.5); }
+    .option:hover { transform: translateY(-2px); border-color: rgba(70,227,255,.5); box-shadow: var(--shadow-soft); }
     .option::before {
       content: attr(data-letter);
       position: absolute;
@@ -980,7 +1019,8 @@
         overflow: auto;
         border: 1px solid var(--line);
         border-radius: 16px;
-        background: #09192d;
+        background: rgba(9, 25, 45, .97);
+        backdrop-filter: blur(18px);
         box-shadow: var(--shadow);
       }
       .main-nav.open { display: grid; }
@@ -988,7 +1028,7 @@
       .hero { grid-template-columns: 1fr; }
       .hero-copy { padding-top: 20px; }
       .atom-lab { min-height: 430px; }
-      .trend-layout, .geometry-layout { grid-template-columns: 1fr; }
+      .trend-layout, .geometry-layout, .molecule3d-layout { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 720px) {
@@ -999,13 +1039,13 @@
       .credit-badge { padding: 2px 7px; font-size: 10px; }
       .credit-phone { font-size: 9.5px; padding: 1px 6px; }
       .lang-toggle button { min-width: 35px; padding-inline: 6px; }
-      section { padding-top: 76px; }
+      section { padding-top: 66px; }
       .complete-btn { position: static; margin: -10px 0 20px; }
       .grid-2, .grid-3, .grid-4, .option-grid { grid-template-columns: 1fr; }
       .quantum-controls { grid-template-columns: repeat(2, 1fr); }
       .hierarchy { grid-template-columns: 1fr; gap: 20px; }
       .hierarchy div:not(:last-child)::after { top: auto; right: 50%; bottom: -23px; transform: translateX(50%) rotate(90deg); }
-      .viewer-toolbar { grid-template-columns: 1fr; }
+      .viewer-toolbar { grid-template-columns: 1fr; align-items: stretch; }
       #orbitalCanvas, #dragoCanvas, #geometryCanvas { height: 360px; }
       .footer-grid { grid-template-columns: 1fr; }
       .topic-row { grid-template-columns: 1fr 1.2fr 40px; }
@@ -1018,11 +1058,18 @@
       .ionic-stage[data-step="4"] .ion-dot { left: calc(95% - 105px); }
       .ionic-stage[data-step="4"] .ion-atom.na { left: 29%; }
       .ionic-stage[data-step="4"] .ion-atom.cl { right: 34%; }
+      .button-row { width: 100%; }
+      .button-row .btn { flex: 1 1 150px; }
+      .panel.padded { padding: 18px; }
+      .quiz-content { padding-inline: 16px; }
+      .quiz-top { padding-inline: 16px; }
     }
     @media (max-width: 470px) {
       .credit-badge { display: none; }
       .brand-text { font-size: .88rem; }
       .hero { gap: 10px; }
+      h1 { font-size: clamp(2.35rem, 14vw, 3.8rem); }
+      h2 { font-size: clamp(1.8rem, 10vw, 2.5rem); }
       .atom-lab { min-height: 360px; }
       .atom-label { right: 10px; bottom: 10px; max-width: 190px; }
       .progress-orbit { left: 10px; top: 10px; width: 78px; height: 78px; }
@@ -1030,10 +1077,17 @@
       .quantum-controls, .shape-readout, .angle-compare { grid-template-columns: 1fr; }
       .quiz-actions { align-items: stretch; flex-direction: column; }
       .quiz-actions .btn { width: 100%; }
+      .quiz-question { font-size: 1.2rem; }
+      .option { min-height: 54px; padding-left: 46px; }
+      .ionic-stage { min-height: 300px; }
+      .ion-atom { width: 88px; height: 88px; top: 100px; font-size: 1.6rem; }
+      .stage-caption { left: 12px; right: 12px; font-size: .8rem; }
+      .molecule3d-stage, #molecule3dCanvas { min-height: 320px; height: 320px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
+    body.nav-open { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -1451,6 +1505,51 @@
       </div>
     </section>
 
+    <section id="molecule3d" data-track="molecule3d">
+      <div class="section-head">
+        <p class="eyebrow">09 • 3D Molecule Builder</p>
+        <h2 data-bn="VSEPR অণু নির্মাতা" data-en="VSEPR molecule builder">VSEPR অণু নির্মাতা</h2>
+        <p class="lead" data-bn="লোন pair ও bond pair-এর পারস্পরিক বিকর্ষণ কীভাবে molecular shape বদলায়, 3D-তে ঘুরিয়ে দেখো।" data-en="Rotate a molecule in 3D to see how lone-pair and bond-pair repulsions shape molecular geometry.">লোন pair ও bond pair-এর পারস্পরিক বিকর্ষণ কীভাবে molecular shape বদলায়, 3D-তে ঘুরিয়ে দেখো।</p>
+      </div>
+      <div class="molecule3d-layout">
+        <div class="panel padded">
+          <span class="tag">Guided 3D lab</span>
+          <h3 data-bn="একটি অণু বেছে নাও" data-en="Choose a molecule">একটি অণু বেছে নাও</h3>
+          <div class="control">
+            <label for="molecule3dSelect" data-bn="Molecule" data-en="Molecule">Molecule</label>
+            <select id="molecule3dSelect">
+              <option value="CH4">CH₄ · tetrahedral</option>
+              <option value="NH3">NH₃ · trigonal pyramidal</option>
+              <option value="H2O">H₂O · bent</option>
+              <option value="BF3">BF₃ · trigonal planar</option>
+              <option value="CO2">CO₂ · linear</option>
+            </select>
+          </div>
+          <div class="button-row" style="margin-top:14px">
+            <button class="btn primary" id="molecule3dAnimate" type="button" data-bn="▶ অ্যানিমেশন চালাও" data-en="▶ Play animation">▶ অ্যানিমেশন চালাও</button>
+            <button class="btn" id="molecule3dReset" type="button" data-bn="↻ Reset" data-en="↻ Reset">↻ Reset</button>
+          </div>
+          <div class="mini-card" style="margin-top:18px">
+            <h3 id="molecule3dTitle">CH₄ · Tetrahedral</h3>
+            <p id="molecule3dExplanation" class="muted"></p>
+            <div class="grid-2" style="margin-top:12px">
+              <div><small class="muted" data-bn="Steric number" data-en="Steric number">Steric number</small><b id="molecule3dSteric" style="display:block;color:var(--cyan);font-size:1.35rem">4</b></div>
+              <div><small class="muted" data-bn="Lone pair" data-en="Lone pairs">Lone pair</small><b id="molecule3dLone" style="display:block;color:var(--amber);font-size:1.35rem">0</b></div>
+            </div>
+          </div>
+          <p class="fine" style="margin:14px 0 0" data-bn="Drag করে rotate করো, wheel বা pinch দিয়ে zoom করো।" data-en="Drag to rotate, and use the wheel or pinch gesture to zoom.">Drag করে rotate করো, wheel বা pinch দিয়ে zoom করো।</p>
+        </div>
+        <div>
+          <div class="molecule3d-stage panel">
+            <canvas id="molecule3dCanvas" aria-label="Interactive three-dimensional molecule viewer"></canvas>
+            <div class="molecule3d-hud"><span class="tag">Three.js</span><span class="tag" id="molecule3dShape">Tetrahedral</span></div>
+            <p class="molecule3d-caption" id="molecule3dCaption">Rotate the model to inspect the electron-domain arrangement.</p>
+          </div>
+          <div class="molecule3d-legend"><span><i></i><span data-bn="Atom" data-en="Atom">Atom</span></span><span><i class="bond"></i><span data-bn="Bond" data-en="Bond">Bond</span></span><span><i class="lone"></i><span data-bn="Lone pair domain" data-en="Lone-pair domain">Lone-pair domain</span></span></div>
+        </div>
+      </div>
+    </section>
+
     <section id="revision" data-track="revision">
       <button class="btn complete-btn" type="button" data-complete="revision"><span>✓</span><span data-bn="অধ্যায় সম্পন্ন" data-en="Mark complete">অধ্যায় সম্পন্ন</span></button>
       <div class="section-head">
@@ -1554,6 +1653,7 @@
   <div class="glossary-pop" id="glossaryPop" role="tooltip" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
   (function () {
     "use strict";
@@ -1643,15 +1743,27 @@
 
     var menuToggle = document.getElementById("menuToggle");
     var mainNav = document.getElementById("mainNav");
+    function closeMenu() {
+      mainNav.classList.remove("open");
+      document.body.classList.remove("nav-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", state.lang === "bn" ? "মেনু খোলো" : "Open menu");
+    }
     menuToggle.addEventListener("click", function () {
       var open = mainNav.classList.toggle("open");
+      document.body.classList.toggle("nav-open", open);
       menuToggle.setAttribute("aria-expanded", String(open));
       menuToggle.setAttribute("aria-label", state.lang === "bn" ? (open ? "মেনু বন্ধ করো" : "মেনু খোলো") : (open ? "Close menu" : "Open menu"));
     });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && mainNav.classList.contains("open")) {
+        closeMenu();
+        menuToggle.focus();
+      }
+    });
     mainNav.addEventListener("click", function (event) {
       if (event.target.closest("a")) {
-        mainNav.classList.remove("open");
-        menuToggle.setAttribute("aria-expanded", "false");
+        closeMenu();
       }
     });
 
@@ -2864,6 +2976,137 @@
     updateCalculator();
     renderQuiz();
     requestAnimationFrame(drawBondScene);
+  }());
+  </script>
+  <script>
+  (function () {
+    "use strict";
+    var canvas = document.getElementById("molecule3dCanvas");
+    if (!canvas || !window.THREE) return;
+
+    var THREE = window.THREE;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    camera.position.set(0, 0.25, 6.4);
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    var moleculeGroup = new THREE.Group();
+    scene.add(moleculeGroup);
+    scene.add(new THREE.HemisphereLight(0xb9edff, 0x07101d, 2.2));
+    var keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    keyLight.position.set(3, 4, 5);
+    scene.add(keyLight);
+
+    var presets = {
+      CH4: { title: "CH₄ · Tetrahedral", shape: "Tetrahedral", steric: 4, lone: 0, central: "C", terminals: ["H", "H", "H", "H"], positions: [[1, 1, 1], [-1, -1, 1], [-1, 1, -1], [1, -1, -1]], explanation: "Four bonding domains spread out to minimise repulsion, producing a tetrahedral shape.", explanationBn: "চারটি bonding domain বিকর্ষণ কমাতে ছড়িয়ে পড়ে, তাই tetrahedral shape তৈরি হয়।" },
+      NH3: { title: "NH₃ · Trigonal pyramidal", shape: "Trigonal pyramidal", steric: 4, lone: 1, central: "N", terminals: ["H", "H", "H"], positions: [[1, .55, 0], [-.5, .55, .86], [-.5, .55, -.86]], lonePositions: [[0, -1.2, 0]], explanation: "Three bonds and one lone pair occupy four domains; the lone pair compresses the H–N–H angles.", explanationBn: "তিনটি bond ও একটি lone pair চারটি domain দখল করে; lone pair, H–N–H angle কমিয়ে দেয়।" },
+      H2O: { title: "H₂O · Bent", shape: "Bent", steric: 4, lone: 2, central: "O", terminals: ["H", "H"], positions: [[.92, .25, 0], [-.92, .25, 0]], lonePositions: [[0, -.95, .62], [0, -.95, -.62]], explanation: "Two lone pairs occupy more space than bonds, bending the molecule away from a tetrahedral angle.", explanationBn: "দুটি lone pair bond-এর চেয়ে বেশি জায়গা নেয়, তাই molecule tetrahedral angle থেকে বেঁকে যায়।" },
+      BF3: { title: "BF₃ · Trigonal planar", shape: "Trigonal planar", steric: 3, lone: 0, central: "B", terminals: ["F", "F", "F"], positions: [[1.25, 0, 0], [-.625, 1.08, 0], [-.625, -1.08, 0]], explanation: "Three bonding domains arrange in one plane with approximately 120° separation.", explanationBn: "তিনটি bonding domain একই সমতলে প্রায় 120° ব্যবধানে থাকে।" },
+      CO2: { title: "CO₂ · Linear", shape: "Linear", steric: 2, lone: 0, central: "C", terminals: ["O", "O"], positions: [[1.45, 0, 0], [-1.45, 0, 0]], explanation: "Two electron domains repel to opposite sides of the central atom, giving a linear molecule.", explanationBn: "দুটি electron domain central atom-এর দুই পাশে থাকে, তাই molecule linear হয়।" }
+    };
+
+    var atomColors = { C: 0x9bb7c8, H: 0xf5f8ff, N: 0x6ca9ff, O: 0xff7c8c, B: 0xffc75a, F: 0x5ce6a1 };
+    var atomGeometry = new THREE.SphereGeometry(.34, 32, 20);
+    var loneGeometry = new THREE.SphereGeometry(.17, 20, 14);
+    var bondGeometry = new THREE.CylinderGeometry(.085, .085, 1, 16);
+    var drag = { active: false, x: 0, y: 0 };
+    var playing = false;
+    var selected = "CH4";
+
+    function resize() {
+      var rect = canvas.getBoundingClientRect();
+      var width = Math.max(1, rect.width);
+      var height = Math.max(1, rect.height);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+
+    function clearGroup() {
+      while (moleculeGroup.children.length) {
+        var child = moleculeGroup.children.pop();
+        child.traverse(function (node) {
+          if (node.geometry) node.geometry.dispose();
+          if (node.material) node.material.dispose();
+        });
+      }
+    }
+
+    function vector(point) {
+      return new THREE.Vector3(point[0], point[1], point[2]);
+    }
+
+    function addBond(from, to) {
+      var start = vector(from);
+      var end = vector(to);
+      var direction = new THREE.Vector3().subVectors(end, start);
+      var bond = new THREE.Mesh(bondGeometry, new THREE.MeshStandardMaterial({ color: 0xdbeafe, metalness: .25, roughness: .3 }));
+      bond.position.copy(start).add(end).multiplyScalar(.5);
+      bond.scale.y = direction.length();
+      bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+      moleculeGroup.add(bond);
+    }
+
+    function addAtom(symbol, point, central) {
+      var material = new THREE.MeshStandardMaterial({ color: atomColors[symbol] || atomColors.C, emissive: atomColors[symbol] || atomColors.C, emissiveIntensity: .08, metalness: .12, roughness: .34 });
+      var atom = new THREE.Mesh(atomGeometry, material);
+      atom.position.copy(vector(point));
+      atom.scale.setScalar(central ? 1.14 : .78);
+      moleculeGroup.add(atom);
+    }
+
+    function addLonePair(point) {
+      var material = new THREE.MeshStandardMaterial({ color: 0xffc75a, emissive: 0xff9f1c, emissiveIntensity: .3, transparent: true, opacity: .9 });
+      var lone = new THREE.Mesh(loneGeometry, material);
+      lone.position.copy(vector(point));
+      moleculeGroup.add(lone);
+    }
+
+    function renderPreset(key) {
+      var preset = presets[key];
+      selected = key;
+      clearGroup();
+      moleculeGroup.rotation.set(0, 0, 0);
+      addAtom(preset.central, [0, 0, 0], true);
+      preset.positions.forEach(function (point, index) {
+        addAtom(preset.terminals[index], point, false);
+        addBond([0, 0, 0], point);
+      });
+      (preset.lonePositions || []).forEach(addLonePair);
+      document.getElementById("molecule3dTitle").textContent = preset.title;
+      document.getElementById("molecule3dShape").textContent = preset.shape;
+      document.getElementById("molecule3dSteric").textContent = preset.steric;
+      document.getElementById("molecule3dLone").textContent = preset.lone;
+      document.getElementById("molecule3dCaption").textContent = document.documentElement.lang === "bn" ? preset.explanationBn : preset.explanation;
+      document.getElementById("molecule3dExplanation").textContent = document.documentElement.lang === "bn" ? preset.explanationBn : preset.explanation;
+    }
+
+    canvas.addEventListener("pointerdown", function (event) { drag.active = true; drag.x = event.clientX; drag.y = event.clientY; canvas.setPointerCapture(event.pointerId); });
+    canvas.addEventListener("pointermove", function (event) {
+      if (!drag.active) return;
+      moleculeGroup.rotation.y += (event.clientX - drag.x) * .008;
+      moleculeGroup.rotation.x += (event.clientY - drag.y) * .008;
+      drag.x = event.clientX; drag.y = event.clientY;
+    });
+    canvas.addEventListener("pointerup", function () { drag.active = false; });
+    canvas.addEventListener("pointercancel", function () { drag.active = false; });
+    canvas.addEventListener("wheel", function (event) { event.preventDefault(); camera.position.z = Math.max(3.8, Math.min(9, camera.position.z + event.deltaY * .004)); }, { passive: false });
+    document.getElementById("molecule3dSelect").addEventListener("change", function (event) { renderPreset(event.target.value); });
+    document.getElementById("molecule3dReset").addEventListener("click", function () { camera.position.set(0, .25, 6.4); renderPreset(selected); });
+    document.getElementById("molecule3dAnimate").addEventListener("click", function () {
+      playing = !playing;
+      this.textContent = playing ? "❚❚ Pause animation" : (document.documentElement.lang === "bn" ? "▶ অ্যানিমেশন চালাও" : "▶ Play animation");
+    });
+    new MutationObserver(function () { renderPreset(selected); }).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+    window.addEventListener("resize", resize);
+    resize();
+    renderPreset(selected);
+    (function frame() {
+      if (playing && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) moleculeGroup.rotation.y += .004;
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }());
   }());
   </script>
 </body>
